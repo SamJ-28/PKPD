@@ -1,5 +1,10 @@
 # R script to clean and visually analyze data
 # Sam Jones
+# To the reader: This file is the one I used as a "scrapbook" of sorts when building code 
+# to clean and visualize the provided data. I'll keep my "thought process" and general workflow
+# included- as this will be used to assess me I believe it will be beneficial you have some idea 
+# of what goes through my head as I approach a task! If you've ended up here but want the "clean"
+# code for the final version in the presentation, please check elsewhere in my github.
 
 # Todo: Read packages at the start (check this before final version)
 library(tidyverse)
@@ -271,10 +276,6 @@ gg_conc <- ggplot()+
   theme_bw()
 
 # Everything works normally with the new function.
-# 
-# TODO:
-# Separate Study 3 into Just A, just B and Combination. 
-# LLOQ 
 
 spaghetti_conc <- function(Study){
   
@@ -285,4 +286,60 @@ spaghetti_conc <- function(Study){
     theme_bw()
   
   return(gg_conc)
+}
+
+# Separated conc allows for easy labelling of doses. Need to think about how to do that 
+# With the spaghetti plots (i.e., separate lines by individual but color by doses.)
+
+seperated_conc <- function(Study){
+  
+  gg_conc <- ggplot()+
+    geom_line(data=get_conc2(Study),aes(y=DV,x=NT,color=as.factor(get_conc2(Study)$Dose)))+
+    scale_y_continuous(trans="log10")+
+    facet_grid(ID~Compound)+
+    theme_bw()
+
+  return(gg_conc)
+}
+
+# Grouping does the trick.
+
+spaghetti_dose_conc <- function(Study){
+  
+  gg_conc <- ggplot()+
+    geom_line(data=get_conc2(Study),aes(y=DV,x=NT,group=as.factor(get_conc2(Study)$ID),color=as.factor(get_conc2(Study)$Dose)))+
+    scale_y_continuous(trans="log10")+
+    facet_grid(.~Compound)+
+    theme_bw()
+  
+  return(gg_conc)
+}
+
+
+# TODO:
+# Separate Study 3 into Just A, just B and Combination. 
+# LLOQ 
+
+# Let's do LLOQ first as this should be a fairly easy task, I am simply filtering out rows 
+# based on the contents of the IGNORE column. I'm a little reluctant to do this in case I 
+# explore other ways of dealing with LLOQ data later... but I also might forget and it's
+# easy enough to restore the data with a different function (get_conc_2 or etc.)
+
+# Old annotations removed, see get_conc2! 
+get_conc3 <- function(studyDat){
+  
+  StudyDose <- studyDat[grep("Concentration",studyDat$NAME),]
+
+  CpdA<- StudyDose %>%
+    filter(str_detect(NAME, "CpdA")) %>%
+    mutate(Compound="CpdA",Dose=DOSECpdA)
+  
+  CpdB <- StudyDose %>%
+    filter(str_detect(NAME, "CpdB")) %>%
+    mutate(Compound="CpdB",Dose=DOSECpdB)
+
+  editedStudyDose <- rbind(CpdA,CpdB)
+
+  
+  return(editedStudyDose)
 }
