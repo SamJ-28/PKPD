@@ -351,3 +351,49 @@ gg_conc2 <- spaghetti_dose_conc(get_conc3(Study1))
 
 # That handles it nicely (imho). Dependant on LLOQ being a char string in the IGNORE col, but that
 # does seem to be a theme with this data-set. 
+
+# TODO: Make this pull the monotherapies. 
+
+get_conc_combi <- function(dat,which_run){
+  
+  print("Takes the input of get_conc3(study)")
+  if(which_run=="CpdA"){
+    dat_test <- dat %>%
+      filter(str_detect(TRTNAME, "CpdA") & !str_detect(TRTNAME,"CpdB"))
+  }
+  
+  if(which_run=="CpdB"){
+    dat_test <- dat %>%
+      filter(str_detect(TRTNAME, "CpdB") & !str_detect(TRTNAME,"CpdA"))
+  }
+
+  if(which_run=="Combination"){
+    dat_test <- dat %>%
+      filter(str_detect(TRTNAME, "CpdB") & str_detect(TRTNAME,"CpdA"))
+  }
+  
+  return(dat_test)  
+}
+
+
+gg_conc3 <- spaghetti_dose_conc(get_conc_combi(get_conc3(Study3),"Combination"))
+
+# Now what I really want to do is see how the monotherapy portion of Study 3 compares to 1/2. 
+gg_conc4 <- spaghetti_dose_conc(get_conc_combi(get_conc3(Study3),"CpdA"))
+gg_conc5 <- spaghetti_dose_conc(get_conc_combi(get_conc3(Study1),"CpdA"))
+gg_conc6 <- spaghetti_dose_conc(get_conc3(Study1))
+
+# All of these work. Now for a quick test... 
+test <- get_conc3(Study1) %>%
+  filter(Dose==5 | Dose== 10 | Dose ==25)
+
+gg_conc7 <- spaghetti_dose_conc(test)
+
+# So pretty similar outcomes, and we have functions for extracting conc and creating ggplots. 
+# I want the parasitaemia data now in a similar fashion. 
+# Then I want to extract DATA in a form that's reasonable to be read by mrgsolve:
+
+# useful ref: https://mhismail.github.io/2018-01-28-pk-fit/ 
+
+# So TODO: 
+# Parasitaemia, dosing, view to PK fit. 
