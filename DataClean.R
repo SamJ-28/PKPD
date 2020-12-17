@@ -4,6 +4,7 @@
 # Todo: Read packages at the start (check this before final version)
 library(tidyverse)
 library(ggplot2)
+library(stringr)
 
 # Hard read data 
 PKPDdata<-read.csv("D:/SAM/Documents/Interview/All_PKPDdata.csv")
@@ -176,6 +177,10 @@ get_dose <- function(studyDat){
   
   StudyDose <- studyDat[grep("Dose",studyDat$NAME),]
   
+  # todo: mutate here to call "A" or "B" based on which one is >0 ?, then a new "AMT"
+  # as AMT is defunct for any row that isn't a dose. 
+  # Would make plotting the spaghetti plots much easier. 
+  
   return(StudyDose)
 }
 
@@ -204,8 +209,6 @@ gg_conc <- ggplot()+
 
 Study3[Study3$ID==140,]
 
-# Ok, YTYPE column seems useful but still not sure entirely what it is. 
-# 1 = CpdA, 2 = CpdB, although parasitaemia is also 1. 
 # Looking for a "cheat" to pull get_conc and have R "know" which drug compound it is. 
 # Or do I even have to do that? Can we just group geom_line by NAME ?
 
@@ -219,3 +222,56 @@ gg_conc <- ggplot()+
 
 # One thing that is a little unclear to me is why there's monotherapy data included in Study 3 when that 
 # data is being provided by Study 1 and 2. 
+
+# Fun plot! 
+
+gg_conc <- ggplot()+
+  geom_line(data=get_conc(Study3),aes(y=DV,x=NT,color=as.factor(get_conc(Study3)$ID)))+
+  scale_y_continuous(trans="log10")+
+  facet_grid(NAME~.)+
+  theme_bw()
+
+# Ok, same function but with extra "dose cleaning". 
+get_conc2 <- function(studyDat){
+  
+  StudyDose <- studyDat[grep("Concentration",studyDat$NAME),]
+  
+  # Need to a) check which concentration we're using and b) get it. 
+  # Can't just pull a/b from pkpd data as for study 3 the combo has both. 
+  # However, NAME does state CpdA/B so we can just grep, then pull from the according column.
+  # Vector of all CpdA:
+  # Note to self, stringr might be a better option? 
+  
+  CpdA<- StudyDose %>%
+    filter(str_detect(NAME, "CpdA")) %>%
+    mutate(Compound="CpdA",Dose=DOSECpdA)
+    
+  CpdB <- StudyDose %>%
+    filter(str_detect(NAME, "CpdB")) %>%
+    mutate(Compound="CpdB",Dose=DOSECpdB)
+  
+  # The tidy option seems better than grep. 
+  
+  # Bind them together (only relevant for study 3, but A and B should just add the empty row.)
+  # Also, can also edit this function to give separate output if needed. 
+  
+  editedStudyDose <- rbind(CpdA,CpdB)
+  
+  # Later ill probably want to trim down to just the data. Essentially this means that for each
+  # row (i.e., a drug conc reading), there will just be one dose (Dose) and a compound i.d (Compound)
+  
+  
+  return(editedStudyDose)
+}
+
+gg_conc <- ggplot()+
+  geom_line(data=get_conc2(Study3),aes(y=DV,x=NT,color=as.factor(get_conc2(Study3)$ID)))+
+  scale_y_continuous(trans="log10")+
+  facet_grid(Compound~.)+
+  theme_bw()
+
+# Everything works normally with the new function.
+# 
+# TODO:
+# Separate Study 3 into Just A, just B and Combination. 
+# LLOQ 
