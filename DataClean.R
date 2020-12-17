@@ -275,3 +275,14 @@ gg_conc <- ggplot()+
 # TODO:
 # Separate Study 3 into Just A, just B and Combination. 
 # LLOQ 
+
+spaghetti_conc <- function(Study){
+  
+  gg_conc <- ggplot()+
+    geom_line(data=get_conc2(Study),aes(y=DV,x=NT,color=as.factor(get_conc2(Study)$ID)))+
+    scale_y_continuous(trans="log10")+
+    facet_grid(.~Compound)+
+    theme_bw()
+  
+  return(gg_conc)
+}
