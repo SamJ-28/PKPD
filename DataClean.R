@@ -316,16 +316,16 @@ spaghetti_dose_conc <- function(Study){
 }
 
 
-# TODO:
-# Separate Study 3 into Just A, just B and Combination. 
-# LLOQ 
-
 # Let's do LLOQ first as this should be a fairly easy task, I am simply filtering out rows 
 # based on the contents of the IGNORE column. I'm a little reluctant to do this in case I 
 # explore other ways of dealing with LLOQ data later... but I also might forget and it's
 # easy enough to restore the data with a different function (get_conc_2 or etc.)
 
 # Old annotations removed, see get_conc2! 
+# Note that get_conc2() has different entries in IGNORE.
+# "BLLOQ:::(M1)" in Study1
+#  "Concentration:::is:::Below:::LLOQ" in Study 3. 
+
 get_conc3 <- function(studyDat){
   
   StudyDose <- studyDat[grep("Concentration",studyDat$NAME),]
@@ -338,8 +338,16 @@ get_conc3 <- function(studyDat){
     filter(str_detect(NAME, "CpdB")) %>%
     mutate(Compound="CpdB",Dose=DOSECpdB)
 
-  editedStudyDose <- rbind(CpdA,CpdB)
-
+  editedStudyDose <- rbind(CpdA,CpdB) %>%
+    filter(!str_detect(IGNORE,"LLOQ"))
+  
   
   return(editedStudyDose)
 }
+
+
+gg_conc1 <- spaghetti_dose_conc(get_conc2(Study1))
+gg_conc2 <- spaghetti_dose_conc(get_conc3(Study1))
+
+# That handles it nicely (imho). Dependant on LLOQ being a char string in the IGNORE col, but that
+# does seem to be a theme with this data-set. 
