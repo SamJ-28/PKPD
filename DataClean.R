@@ -395,5 +395,68 @@ gg_conc7 <- spaghetti_dose_conc(test)
 
 # useful ref: https://mhismail.github.io/2018-01-28-pk-fit/ 
 
-# So TODO: 
-# Parasitaemia, dosing, view to PK fit. 
+# Parasitaemia:
+# So this can use the same code really as the conc. 
+# But let's switch the grep to str_detect. Should also need less in the function
+# as no different doses to distinguish between, but still want to pull the Cpds for study 3. 
+
+# As a note, get Conc 3 and get_conc_combi could probably be combined. 
+
+# As far as I can tell, there's no IGNORE criteria, but good practice to include a catch anyway. 
+get_par <- function(studyDat, which_treatment){
+  print("Takes Study1, Study2, etc..")
+  
+  Study_par <- studyDat %>%
+    filter(str_detect(NAME, "Parasitemia")) 
+  
+  # Can we pipe these multiple if statements?
+  if(which_treatment=="CpdA"){
+    Study_par<- Study_par %>%
+      filter(str_detect(TRTNAME, "CpdA") & !str_detect(TRTNAME,"CpdB"))
+  }
+  
+  if(which_treatment=="CpdB"){
+    Study_par<- Study_par %>%
+        filter(str_detect(TRTNAME, "CpdB") & !str_detect(TRTNAME,"CpdA"))
+    
+  }
+  
+  if(which_treatment=="Combination"){
+    Study_par<- Study_par %>%
+      filter(str_detect(TRTNAME, "CpdB") & str_detect(TRTNAME,"CpdA"))
+  }
+  
+  print(class(Study_par))
+  
+  return(data.frame(Study_par))
+}
+
+
+spaghetti_par <- function(Study){
+  
+  print("Takes get_par")
+  gg_conc <- ggplot()+
+    geom_line(data=Study,aes(y=DV,x=NT,color=as.factor(Study$ID)))+
+    theme_bw()
+  
+  return(gg_conc)
+}
+
+# Probably want to plot parasitaemia by dose. Difficult to do, though. Facet? 
+
+spaghetti_par_facet <- function(Study){
+  
+  print("Takes get_par")
+  gg_conc <- ggplot()+
+    geom_line(data=Study,aes(y=DV,x=NT,color=as.factor(Study$ID)))+
+    theme_bw()+
+    facet_grid(DOSECpdA~DOSECpdB)
+  
+  return(gg_conc)
+}
+
+# Honestly quite an interesting plot. 
+
+# TODO: Parasitaemia is a %, make sure you understand what's happening. 
+# TODO: Include ignore catch anyway. 
+# TODO: Think about final plots. 
