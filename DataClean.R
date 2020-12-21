@@ -1,10 +1,12 @@
 # R script to clean and visually analyze data
 # Sam Jones
+
 # To the reader: This file is the one I used as a "scrapbook" of sorts when building code 
 # to clean and visualize the provided data. I'll keep my "thought process" and general workflow
 # included- as this will be used to assess me I believe it will be beneficial you have some idea 
-# of what goes through my head as I approach a task! If you've ended up here but want the "clean"
-# code for the final version in the presentation, please check elsewhere in my github.
+# of what goes through my head as I approach a task! ( this may be "rambling" at points...)
+# If you've ended up here but want the "clean" code for the final version in the presentation,
+# please check elsewhere in my github.
 
 # Todo: Read packages at the start (check this before final version)
 library(tidyverse)
@@ -469,6 +471,7 @@ gg_par<-spaghetti_par_facet(get_par(Study3,"CpdA"))+
 
 
 # Didn't think about the facet grid being set up that way. Easy enough to change.. 
+
 gg_par<-spaghetti_par_facet(get_par(Study3,"CpdB"))+
   ylab("Ln (% of IRBCs)")+
   xlab("Time (hours)")+
@@ -488,4 +491,14 @@ gg_par<-spaghetti_par_facet(get_par(Study3,"CpdB"))+
 # Patients "cured" when parasites below detectable level. Not clear to me from the document 
 # What this level would be in mice.. probably not safe to assume it's censored as the length
 # of follow-up is very variable. 
+
+# Start thinking about data extraction for the PK model. 
+
+# Ok, so for the PK model we're after drug conc and dose / time. 
+# Both are pretty simple in terms of input to mrgsolve, just ID, dose, time. 
+# mrgsolve function expand.ev() handles the other stuff that's needed..
+
+# So need new functions, "export_conc" and "export_dose" that take the outputs of 
+# get_conc and get_dose, trim the un-needed parameters off, and save them. 
+
 
