@@ -456,7 +456,36 @@ spaghetti_par_facet <- function(Study){
 }
 
 # Honestly quite an interesting plot. 
+gg_par<-spaghetti_par_facet(get_par(Study3,"Combination"))+
+  ylab("Ln (% of IRBCs)")+
+  xlab("Time (hours)")+
+  geom_vline(xintercept=672, linetype="dashed", color="red")
+
+ 
+gg_par<-spaghetti_par_facet(get_par(Study3,"CpdA"))+
+  ylab("Ln (% of IRBCs)")+
+  xlab("Time (hours)")+
+  geom_vline(xintercept=672, linetype="dashed", color="red")
+
+
+# Didn't think about the facet grid being set up that way. Easy enough to change.. 
+gg_par<-spaghetti_par_facet(get_par(Study3,"CpdB"))+
+  ylab("Ln (% of IRBCs)")+
+  xlab("Time (hours)")+
+  geom_vline(xintercept=672, linetype="dashed", color="red")+
+  facet_grid(DOSECpdB~DOSECpdA)
 
 # TODO: Parasitaemia is a %, make sure you understand what's happening. 
 # TODO: Include ignore catch anyway. 
 # TODO: Think about final plots. 
+
+# Mice are engrated with 40% human rbcs - infected when they have 40%. 
+# Dose starts when infected have 1% parasitaemia (i.e., irbc)
+# parasitaemia is expressed as % of irbcs among the human irbcs. 
+# values of parasitaemia in DV are "ln transformed. "
+# Document states "column NAME=Log10(Parasitemia))."
+# Can't see the log 10 - assume it's ln and check in the new year when MMV reopens. 
+# Patients "cured" when parasites below detectable level. Not clear to me from the document 
+# What this level would be in mice.. probably not safe to assume it's censored as the length
+# of follow-up is very variable. 
+
