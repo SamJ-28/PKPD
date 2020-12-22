@@ -524,6 +524,7 @@ export_conc_mono <- function(Study,which_run){
     
     print("don't use this function for getting the combination data, it needs to be split")    
     conc_data <- get_conc_combi(get_conc3(Study),which_run)%>%
+      
       select(ID,NT,DV)
     
     
@@ -532,3 +533,18 @@ export_conc_mono <- function(Study,which_run){
   return(conc_data)
   
 }
+
+
+export_conc_combi <- function(Study,which_compound){
+  
+  
+  conc_data <- get_conc_combi(get_conc3(Study),"Combination")%>%
+    filter(Compound==which_compound)%>%
+    select(ID,NT,DV)
+  
+  
+  
+  return(conc_data)
+  
+}
+# As of 22/12 mostly stopping on this exploratory script and moving functions to seperate files for plotting and PK models
