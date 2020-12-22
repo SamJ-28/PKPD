@@ -502,3 +502,34 @@ gg_par<-spaghetti_par_facet(get_par(Study3,"CpdB"))+
 # get_conc and get_dose, trim the un-needed parameters off, and save them. 
 
 # 
+
+# function to export drug concs for use  in mrgsolve
+# todo - maybe: one function for both the combination and monotherapies would be nice
+# but the combination therapy compounds need to be split to make my life easy in mrgsolve.
+# so ease might have to triumph "neat programming" here. 
+
+export_conc_mono <- function(Study,which_run){
+  
+  # which_run is only needed for study 3
+  if(missing(which_run)){
+    
+    # load drug data
+    conc_data <- get_conc3(Study) %>%
+      select(ID,NT,DV)
+    
+  }
+  # Study 3 needs to specify which compound
+  # As it has 2x monotherapies and a combination therapy (that itself has 2x drug concs)
+  else{
+    
+    print("don't use this function for getting the combination data, it needs to be split")    
+    conc_data <- get_conc_combi(get_conc3(Study),which_run)%>%
+      select(ID,NT,DV)
+    
+    
+  }
+  
+  return(conc_data)
+  
+  # Need to save the conc data
+}
