@@ -97,15 +97,18 @@ get_par <- function(studyDat, which_treatment){
 # In an ideal world they would be treated as seperate studies for data entry.
 # There's some hard-coding in here for now due to time - want to get the mrgsolve model working. 
 
-get_dose <- function(Study,which_compound,which_run=NA){
+# todos: select
+
+get_dose_combi <- function(Study,which_compound,combination){
   
-  if(Study==Study3 && which_run=="Combination"){
+  print("Only use for Study 3")
+  if(combination==1){
   StudyDose <-Study %>%
     filter(str_detect(TRTNAME, "CpdB") & str_detect(TRTNAME,"CpdA") & str_detect(NAME,"Dose")) %>%
     filter(str_detect(NAME,which_compound))
   }
   
-  if(Study==Study3 && which_run!="Combination"){
+  if(combination==0){
     
     if(which_compound=="CpdA"){
     ignorecomp <- "CpdB"
@@ -116,20 +119,27 @@ get_dose <- function(Study,which_compound,which_run=NA){
     }
     
     StudyDose <-Study %>%
-      filter(str_detect(TRTNAME, "CpdB") & str_detect(TRTNAME,"CpdA") & str_detect(NAME,"Dose")) %>%
-      filter(str_detect(NAME,which_compound))
+      filter(str_detect(TRTNAME, which_compound) & !str_detect(TRTNAME, ignorecomp) & 
+               str_detect(NAME,"Dose"))
+  
   }
   
-  if(Study!=Study3){
-  StudyDose <- Study %>%
-    filter(str_detect(NAME, "Dose") & str_detect(NAME,which_compound)) 
+  # todo select
   
-  # todo: mutate here to call "A" or "B" based on which one is >0 ?, then a new "AMT"
-  # as AMT is defunct for any row that isn't a dose. 
-  # Would make plotting the spaghetti plots much easier. 
-  }
+  StudyDose <- StudyDose%>%
+    select(ID,NT,AMT)
   
   return(StudyDose)
+}
+
+# which compound is derelict here 
+get_dose_mono <-function(Study,which_compound){
+    print("Only use for Study 1 and 2")
+    StudyDose <- Study %>%
+      filter(str_detect(NAME, "Dose") & str_detect(NAME,which_compound))%>%
+      select(ID,NT,AMT)
+    
+    return(StudyDose)
 }
 
 # Pull and trim the data for use in mrgsolve*
