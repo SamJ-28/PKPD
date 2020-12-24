@@ -106,3 +106,6 @@ cmt_2 <- ggplot(data = mrg_data) +
   geom_point(aes(time,conc)) + 
   scale_y_log10() + 
   geom_line(aes(time,pred),col="firebrick", lwd=1)
+
+# todo: functionalize, 
+# individual runs
