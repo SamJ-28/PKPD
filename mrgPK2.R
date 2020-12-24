@@ -53,8 +53,9 @@ for(i in Study1ID){
   
 }
 
-mrg_data <- filter(mrg_data,ID==9)
+mrg_data9 <- filter(mrg_data,ID==9)
 
+mrg_data22 <- filter(mrg_data,ID==22)
 # Import obj function from kyle baron github:
 
 obj <- function(p, theta, data, dv ="conc", pred = FALSE) {
@@ -74,23 +75,31 @@ obj <- function(p, theta, data, dv ="conc", pred = FALSE) {
   sum(sqr, na.rm=TRUE)
 }
 
+# least weighted sqaures
+objlws <- function(p, theta, data, wt, pred = FALSE) {
+  names(p) <- names(theta)
+  p <- lapply(p,exp)
+  out <- mod %>% param(p) %>% mrgsim_q(data, output="df")
+  if(pred) return(out)
+  return(sum(((out$CP - data[["conc"]])*wt)^2, na.rm=TRUE))
+}
+
 mod <- modlib("pk1")
 
 param(mod)
 
 theta <- log(c(CL = 10, V = 8, KA1 = 1))
 
-obj(theta,theta,mrg_data)
+#obj(theta,theta,mrg_data)
 
-fit <- optim(par = theta, fn=obj, theta = theta, data=mrg_data)
+fit <- optim(par = theta, fn=obj, theta = theta, data=mrg_data9)
 
-pred <- obj(fit$par, theta, mrg_data, pred = TRUE)
+pred <- obj(fit$par, theta, mrg_data22, pred = TRUE)
 
-mrg_data$pred <- pred$CP
+mrg_data22$pred <- pred$CP
 
-print(head(mrg_data))
 
-cmt_1 <-ggplot(data = mrg_data) + 
+cmt_1_22 <-ggplot(data = mrg_data22) + 
   geom_point(aes(time,conc)) + 
   scale_y_log10() + 
   geom_line(aes(time,pred),col="firebrick", lwd=1)
@@ -124,6 +133,31 @@ cmt_3 <- ggplot(data = mrg_data) +
   scale_y_log10() + 
   geom_line(aes(time,pred),col="firebrick", lwd=1)
 
+
+# Test new obj: objwls
+dv <- mrg_data9[["conc"]]
+
+fit_wt <- minqa::newuoa(par = theta, fn=objlws, theta = theta, data=mrg_data9, wt=1/dv)
+objlws(fit_wt$par,theta,mrg_data9,dv)
+
+pred <-  objlws(fit$par, theta, mrg_data9, wt = 1/dv, pred = TRUE)
+predi <- objlws(theta,  theta, mrg_data9, wt = 1/dv, pred = TRUE)
+predw <- objlws(fit_wt$par, theta, mrg_data9, wt = 1/dv, pred = TRUE) 
+
+
+mrg_data9$pred <- pred$CP
+mrg_data9$predi <- predi$CP
+mrg_data9$predw <- predw$CP
+head(mrg_data9)
+
+pred <- distinct(data, time, .keep_all = TRUE)
+
+ggplot(data = mrg_data9) + 
+  geom_point(aes(time,conc)) + 
+  scale_y_log10() + 
+  geom_line(data=mrg_data9,aes(time,pred),col="black", lwd=1, alpha = 0.6) +
+  geom_line(data=mrg_data9,aes(time,predi),col="darkgreen", lwd=1) + 
+  geom_line(data = mrg_data9, aes(time,predw), col="firebrick", lwd = 1)
 
 # todo: functionalize, 
 # individual runs
