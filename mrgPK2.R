@@ -53,6 +53,8 @@ for(i in Study1ID){
   
 }
 
+mrg_data <- filter(mrg_data,ID==9)
+
 # Import obj function from kyle baron github:
 
 obj <- function(p, theta, data, dv ="conc", pred = FALSE) {
@@ -76,7 +78,7 @@ mod <- modlib("pk1")
 
 param(mod)
 
-theta <- log(c(CL = 10, V = 8))
+theta <- log(c(CL = 10, V = 8, KA1 = 1))
 
 obj(theta,theta,mrg_data)
 
@@ -95,8 +97,8 @@ cmt_1 <-ggplot(data = mrg_data) +
 
 ## 2 comp
 
-mod <- modlib("pk2")
-theta <- log(c(CL = 2, V2 = 50, Q = 10, V3 = 50))
+mod <- modlib("pk2cmt")
+theta <- log(c(CL = 2, V2 = 50, Q = 10, V3 = 50, KA1 = 1, KA2= 1))
 fit <- optim(par = theta, fn=obj, theta = theta, data=mrg_data)
 
 pred <- obj(fit$par, theta, mrg_data, pred = TRUE)
@@ -106,6 +108,22 @@ cmt_2 <- ggplot(data = mrg_data) +
   geom_point(aes(time,conc)) + 
   scale_y_log10() + 
   geom_line(aes(time,pred),col="firebrick", lwd=1)
+
+
+
+mod <- modlib("pk3cmt")
+
+theta <- log(c(CL = 2, V2 = 50, Q = 10, V3 = 50))
+fit <- optim(par = theta, fn=obj, theta = theta, data=mrg_data)
+
+pred <- obj(fit$par, theta, mrg_data, pred = TRUE)
+mrg_data$pred <- pred$CP
+
+cmt_3 <- ggplot(data = mrg_data) + 
+  geom_point(aes(time,conc)) + 
+  scale_y_log10() + 
+  geom_line(aes(time,pred),col="firebrick", lwd=1)
+
 
 # todo: functionalize, 
 # individual runs
