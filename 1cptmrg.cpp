@@ -1,15 +1,25 @@
-[PROB]
+$PROB
 # 1 compartment model for given compound. 
 - Sam Jones
 
-[CMT]
+$CMT
 
-[PARAM]
+ABSCMT : Absorption compartment
+MAINCMT : Main compartment
 
-[MAIN]
+$PARAM @annotated
+
+CL: 1 : Clearnace
+VC: 1 : Volume of distribution
+KA: 1 : Absorption
+
+sigma1: 0.1 : proportional residual 
 
 $ODE
 
-[TABLE]
+dxdt_ABSCMT = -KA*ABSCMT;
+dxdt_MAINCMT = KA*ABSCMT - CL/VC*MAINCMT;
 
-[CAPTURE]
+$TABLE
+  
+$CAPTURE

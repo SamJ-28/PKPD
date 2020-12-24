@@ -56,3 +56,8 @@ Study1_dose <- get_dose_mono(Study1,"CpdA")
 conc_9 <- filter(Study1_CpdA_Conc,ID==9)
 dose_9 <- filter(Study1_dose,ID==9)
 colnames(dose_9)<-c("ID","time","amt")
+
+test_dose <- expand.ev(amt=1,time=c(dose_9$time),ID=1)
+test_conc <- select(conc_9, NT, DV)
+
+
