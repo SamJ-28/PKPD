@@ -199,7 +199,7 @@ fit <- DEoptim::DEoptim(
 # But study 3 is fiddly as it has both monotherapy runs and combination runs and i'm limited 
 # on time. 
 
-run_mrgsolve_12<-function(Study,which_compound){
+get_mrgdata_12<-function(Study,which_compound){
   
   # Call this once at the start, then split to conc/dose 
   study_data <- get_individual_study(PKPDdata,Study)
@@ -240,14 +240,59 @@ run_mrgsolve_12<-function(Study,which_compound){
     
   }
   
+  return(mrg_data)
+  
 }
 
 
-run_mrgsolve_3<-function(Study,which_run,which_compound){
+run_mrgsolve_3<-function(Study,which_run="CpdA",which_compound){
   
-  Study1 <- get_individual_study(PKPDdata,"Study1")
+  # I don't like defaulting to CpdA..find beter way?. 
+  
+  if(which_run!="Combination"){
+  # Call this once at the start, then split to conc/dose 
+  study_data <- get_individual_study(PKPDdata,Study)
+  
   # Drug conc 
-  Study1_CpdA_Conc <- export_conc_mono(Study1,"CpdA")
+  study_conc <- export_conc_mono(study_data,which_compound)
   # Read in drug dose
-  Study1_dose <- get_dose_mono(Study1,"CpdA")
+  study_dose <- get_dose_mono(study_data,which_compound)
+  }
+  
+  if(which_run=="Combination"){
+    
+  }
+  
+  studyID <- c(unique(study_conc$ID))
+  
+  colnames(study_dose) <- c("ID","time","amt")
+  colnames(study_conc) <-c("ID","time","conc")
+  
+  mrg_data <- data.frame(time=as.numeric(),conc=as.numeric(),evid=as.numeric(),cmt=as.numeric(),
+                         ID=as.numeric(),amt=as.numeric())
+  
+  # Change the data to format usable by mrgsolve:
+  for(i in studyID){
+    # add dose to mrg_data
+    dose_subset <- study_dose %>%
+      filter(ID==i) %>%
+      mutate(evid=1,cmt=1,conc=NA) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    
+    # Now order and mutate conc, then rbind each ID, order by time.. 
+    conc_subset <- study_conc %>%
+      filter(ID==i) %>%
+      mutate(evid=0,cmt=0,amt=0) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    ID_subset <- rbind(dose_subset,conc_subset) %>%
+      arrange(time,-evid)
+    
+    mrg_data <- rbind(mrg_data,ID_subset)
+    
+    
+  }
+  
+  return(mrg_data)
 }
