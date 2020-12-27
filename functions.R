@@ -336,10 +336,27 @@ mrg_model<-function(data, compartments, optimizer){
   
   # Filter data down to a single patient
   all_ID <- unique(data$ID)
-  
+  loop_ID <- 0
   for( i in all_ID){
+    loop_ID <- loop_ID+1
     
     
+    subset_data <- filter(data,ID==i)
+    
+    if(optimizer=="OLS"){
+    fit <- optim(par = theta, fn=OLSobj(), theta = theta, data=subset_data)
+    
+    pred <- OLSobj(fit$par, theta, subset_data, pred = TRUE)
+    }
+    
+    if(loop_ID==1){
+      return_fit <- fit
+      return_pred <- pred
+    }
+    else{
+      return_fit<-c(return_fit,fit)
+      return_pred<-c(return_pred,pred)
+    }
   } # patient loop
   
 }
