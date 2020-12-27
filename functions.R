@@ -288,12 +288,11 @@ get_mrgdata_3<-function(Study,which_run,which_compound){
   return(mrg_data)
 }
 
-#to do: what is difference between pk1 and pk1cmt?
-# function must return the predictions and params.. 
 
-# Define optimizers outside
 
-# Ordinary least sqaures
+# Optimize functions for mrgsolve: 
+
+# Ordinary least sqaures # Function from Kyle Baron / metrum: https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md 
 objOLS <- function(p, theta, data, dv ="conc", pred = FALSE) {
   
   names(p) <- names(theta)
@@ -311,7 +310,7 @@ objOLS <- function(p, theta, data, dv ="conc", pred = FALSE) {
   sum(sqr, na.rm=TRUE)
 }
 
-# Least weighted sqaures 
+# Least weighted sqaures # Function from Kyle Baron / metrum: https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
 
 objLWS <- function(p, theta, data, wt, pred = FALSE) {
   names(p) <- names(theta)
@@ -321,6 +320,9 @@ objLWS <- function(p, theta, data, wt, pred = FALSE) {
   return(sum(((out$CP - data[["conc"]])*wt)^2, na.rm=TRUE))
 }
 
+
+# Code draws heavily from metrum github resources:
+# https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
 mrg_model<-function(data, compartments, optimizer,output){
   
 
