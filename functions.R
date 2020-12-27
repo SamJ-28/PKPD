@@ -4,7 +4,7 @@
 library(tidyverse)
 library(ggplot2)
 library(stringr)
-
+library(mrgsolve)
 # Isolates Study 1, 2, 3 from the full PKPData (which should be hard-read in)
 
 get_individual_study <- function(data,study){
@@ -286,4 +286,60 @@ get_mrgdata_3<-function(Study,which_run,which_compound){
   }
   
   return(mrg_data)
+}
+
+#to do: what is difference between pk1 and pk1cmt?
+# function must return the predictions and params.. 
+
+# Define optimizers outside
+
+# Ordinary least sqaures
+OLSobj <- function(p, theta, data, dv ="conc", pred = FALSE) {
+  
+  names(p) <- names(theta)
+  
+  p <- lapply(p,exp)
+  
+  mod <- param(mod, p)
+  
+  out <- mod %>% param(p) %>% mrgsim_d(data, output="df")
+  
+  if(pred) return(out)
+  
+  sqr <- (out[["CP"]] - data[[dv]])^2
+  
+  sum(sqr, na.rm=TRUE)
+}
+
+LWSobj <- function(p, theta, data, wt, pred = FALSE) {
+  names(p) <- names(theta)
+  p <- lapply(p,exp)
+  out <- mod %>% param(p) %>% mrgsim_q(data, output="df")
+  if(pred) return(out)
+  return(sum(((out$CP - data[["conc"]])*wt)^2, na.rm=TRUE))
+}
+
+mrg_model<-function(data, compartments, optimizer){
+  
+  if(compartments==1){
+  mod <- modlib("pk1")
+  theta <- log(c(CL = 1, V = 100, KA= 1))
+  
+  }
+  if(compartments==2){
+    mod <- modlib("pk2")
+    theta <- log(c(CL = 1, Q = 1, V2 = 100, V3 = 100, KA= 1))
+  }
+  if(compartments==3){
+    mod <- modlib("pk3cmt")
+  }
+  
+  # Filter data down to a single patient
+  all_ID <- unique(data$ID)
+  
+  for( i in all_ID){
+    
+    
+  } # patient loop
+  
 }
