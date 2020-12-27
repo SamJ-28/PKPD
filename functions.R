@@ -180,3 +180,110 @@ export_conc_combi <- function(Study,which_compound){
   return(conc_data)
   
 }
+
+# Functions to port data into mrgsolve models
+
+get_mrgdata_12<-function(Study,which_compound){
+  
+  # Call this once at the start, then split to conc/dose 
+  study_data <- get_individual_study(PKPDdata,Study)
+  
+  # Drug conc 
+  study_conc <- export_conc_mono(study_data,which_compound)
+  # Read in drug dose
+  study_dose <- get_dose_mono(study_data,which_compound)
+  
+  studyID <- c(unique(study_conc$ID))
+  
+  colnames(study_dose) <- c("ID","time","amt")
+  colnames(study_conc) <-c("ID","time","conc")
+  
+  mrg_data <- data.frame(time=as.numeric(),conc=as.numeric(),evid=as.numeric(),cmt=as.numeric(),
+                         ID=as.numeric(),amt=as.numeric())
+  
+  # Change the data to format usable by mrgsolve:
+  for(i in studyID){
+    # add dose to mrg_data
+    dose_subset <- study_dose %>%
+      filter(ID==i) %>%
+      mutate(evid=1,cmt=1,conc=NA) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    
+    # Now order and mutate conc, then rbind each ID, order by time.. 
+    conc_subset <- study_conc %>%
+      filter(ID==i) %>%
+      mutate(evid=0,cmt=0,amt=0) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    ID_subset <- rbind(dose_subset,conc_subset) %>%
+      arrange(time,-evid)
+    
+    mrg_data <- rbind(mrg_data,ID_subset)
+    
+    
+  }
+  
+  return(mrg_data)
+  
+}
+
+
+get_mrgdata_3<-function(Study,which_run,which_compound){
+  
+  
+  if(which_run!="Combination"){
+    # Call this once at the start, then split to conc/dose 
+    study_data <- get_individual_study(PKPDdata,Study)
+    
+    study_conc <- export_conc_mono(study_data,which_compound)
+    # Read in drug dose
+    study_dose <- get_dose_mono(study_data,which_compound)
+  }
+  
+  
+  if(which_run=="Combination"){
+    
+    # Get study3
+    study_data <- get_individual_study(PKPDdata,Study)
+    
+    
+    study_conc <- export_conc_combi(study_data,which_compound)
+    # Read in drug dose
+    study_dose <- get_dose_combi(study_data,which_compound,1)
+    
+  }
+  
+  studyID <- c(unique(study_conc$ID))
+  
+  colnames(study_dose) <- c("ID","time","amt")
+  colnames(study_conc) <-c("ID","time","conc")
+  
+  mrg_data <- data.frame(time=as.numeric(),conc=as.numeric(),evid=as.numeric(),cmt=as.numeric(),
+                         ID=as.numeric(),amt=as.numeric())
+  
+  # Change the data to format usable by mrgsolve:
+  for(i in studyID){
+    # add dose to mrg_data
+    dose_subset <- study_dose %>%
+      filter(ID==i) %>%
+      mutate(evid=1,cmt=1,conc=NA) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    
+    # Now order and mutate conc, then rbind each ID, order by time.. 
+    conc_subset <- study_conc %>%
+      filter(ID==i) %>%
+      mutate(evid=0,cmt=0,amt=0) %>%
+      relocate(time,conc,evid,cmt,ID,amt)
+    
+    ID_subset <- rbind(dose_subset,conc_subset) %>%
+      arrange(time,-evid)
+    
+    mrg_data <- rbind(mrg_data,ID_subset)
+    
+    
+  }
+  
+  return(mrg_data)
+}
