@@ -294,7 +294,7 @@ get_mrgdata_3<-function(Study,which_run,which_compound){
 # Define optimizers outside
 
 # Ordinary least sqaures
-OLSobj <- function(p, theta, data, dv ="conc", pred = FALSE) {
+objOLS <- function(p, theta, data, dv ="conc", pred = FALSE) {
   
   names(p) <- names(theta)
   
@@ -311,7 +311,9 @@ OLSobj <- function(p, theta, data, dv ="conc", pred = FALSE) {
   sum(sqr, na.rm=TRUE)
 }
 
-LWSobj <- function(p, theta, data, wt, pred = FALSE) {
+# Least weighted sqaures 
+
+objLWS <- function(p, theta, data, wt, pred = FALSE) {
   names(p) <- names(theta)
   p <- lapply(p,exp)
   out <- mod %>% param(p) %>% mrgsim_q(data, output="df")
@@ -319,44 +321,44 @@ LWSobj <- function(p, theta, data, wt, pred = FALSE) {
   return(sum(((out$CP - data[["conc"]])*wt)^2, na.rm=TRUE))
 }
 
-mrg_model<-function(data, compartments, optimizer){
+mrg_model<-function(data, compartments, optimizer,output){
   
+
   if(compartments==1){
   mod <- modlib("pk1")
-  theta <- log(c(CL = 1, V = 100, KA= 1))
-  
+  theta <- log(c(CL = 100, V = 80, KA = 10))
   }
+  
   if(compartments==2){
     mod <- modlib("pk2")
-    theta <- log(c(CL = 1, Q = 1, V2 = 100, V3 = 100, KA= 1))
+    theta <- log(c(CL = 100, Q = 100, V2 = 80, V3 = 80, KA = 10))
   }
-  if(compartments==3){
-    mod <- modlib("pk3cmt")
-  }
-  
-  # Filter data down to a single patient
   all_ID <- unique(data$ID)
   loop_ID <- 0
+  
+  return_fit <- matrix(nrow=1,ncol=length(theta))
+  return_pred <- list()
   for( i in all_ID){
+    
     loop_ID <- loop_ID+1
-    
-    
     subset_data <- filter(data,ID==i)
     
     if(optimizer=="OLS"){
-    fit <- optim(par = theta, fn=OLSobj(), theta = theta, data=subset_data)
-    
-    pred <- OLSobj(fit$par, theta, subset_data, pred = TRUE)
+    fit <- optim(par = theta, fn=objOLS, theta = theta, data=subset_data)
+    pred <- objOLS(fit$par, theta, subset_data, pred = TRUE)
     }
     
-    if(loop_ID==1){
-      return_fit <- fit
-      return_pred <- pred
+    if(optimizer=="LWS"){
+      dv <- subset_data[["conc"]]
+      # add weighting factor.. 
+      fit <- minqa::newuoa(par = theta, fn=objLWS, theta = theta, data=subset_data, wt=1/dv)
+      pred <- objLWS(fit$par, theta, subset_data, wt = 1/dv, pred = TRUE)
     }
-    else{
-      return_fit<-c(return_fit,fit)
-      return_pred<-c(return_pred,pred)
-    }
+    
+    return_fit <- rbind(return_fit,fit$par)
+    return_pred[[loop_ID]] <- pred$CP
   } # patient loop
   
+  return(return_fit)
+
 }
