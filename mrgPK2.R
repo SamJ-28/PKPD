@@ -245,7 +245,7 @@ get_mrgdata_12<-function(Study,which_compound){
 }
 
 
-run_mrgsolve_3<-function(Study,which_run="CpdA",which_compound){
+get_mrgdata_3<-function(Study,which_run="CpdA",which_compound){
   
   # I don't like defaulting to CpdA..find beter way?. 
   
