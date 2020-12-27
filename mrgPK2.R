@@ -245,22 +245,29 @@ get_mrgdata_12<-function(Study,which_compound){
 }
 
 
-get_mrgdata_3<-function(Study,which_run="CpdA",which_compound){
+get_mrgdata_3<-function(Study,which_run,which_compound){
   
-  # I don't like defaulting to CpdA..find beter way?. 
-  
+ 
   if(which_run!="Combination"){
   # Call this once at the start, then split to conc/dose 
   study_data <- get_individual_study(PKPDdata,Study)
   
-  # Drug conc 
   study_conc <- export_conc_mono(study_data,which_compound)
   # Read in drug dose
   study_dose <- get_dose_mono(study_data,which_compound)
   }
   
+  
   if(which_run=="Combination"){
     
+  # Get study3
+  study_data <- get_individual_study(PKPDdata,Study)
+  
+  
+  study_conc <- export_conc_combi(study_data,which_compound)
+  # Read in drug dose
+  study_dose <- get_dose_combi(study_data,which_compound,1)
+
   }
   
   studyID <- c(unique(study_conc$ID))
