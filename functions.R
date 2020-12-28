@@ -331,29 +331,38 @@ mrg_model<-function(data, compartments, optimizer,output){
   
   print("data must be the output of get_mrgdata 12 or 3. Errors may be related to incorrect
         data entry.")
-
+  print("Mod not found? Possibly run mod<-modlib(x) outside of the function. Seems to have issues booting
+         within the loop for the first time in a session.")
+  
   if(compartments==1){
-  mod <- modlib("pk1")
-  theta <- log(c(CL = 100, V = 80, KA = 10))
+    mod <- modlib("pk1")
+    theta <- log(c(CL = 100, V = 80, KA = 10))
+    thetaname <- c("CL","V","KA")
   }
   
   if(compartments==2){
     mod <- modlib("pk2")
     theta <- log(c(CL = 100, Q = 100, V2 = 80, V3 = 80, KA = 10))
+    thetaname <- c("CL","Q","V2","V3","KA")
   }
   all_ID <- unique(data$ID)
   loop_ID <- 0
   
   return_param <- matrix(nrow=1,ncol=length(theta))
   return_pred <- list()
+  
+  # try creating a single row d.f.. 
+  test_df <- data[1,] %>%
+    mutate(mrgpred=NA)
+  
   for( i in all_ID){
     
     loop_ID <- loop_ID+1
     subset_data <- filter(data,ID==i)
     
     if(optimizer=="OLS"){
-    fit <- optim(par = theta, fn=objOLS, theta = theta, data=subset_data)
-    pred <- objOLS(fit$par, theta, subset_data, pred = TRUE)
+      fit <- optim(par = theta, fn=objOLS, theta = theta, data=subset_data)
+      pred <- objOLS(fit$par, theta, subset_data, pred = TRUE)
     }
     
     if(optimizer=="LWS"){
@@ -364,14 +373,23 @@ mrg_model<-function(data, compartments, optimizer,output){
     }
     
     return_param <- rbind(return_param,fit$par)
-    return_pred[[loop_ID]] <- pred$CP
+    
+    #return_pred[[loop_ID]] <- pred$CP
+    
+    pred_df <- subset_data%>%
+      mutate(mrgpred=pred$CP)
+    
+    test_df<-rbind(test_df,pred_df)
   } # patient loop
   
   if(output=="params"){
-  return_param <- return_param[-1, ]  
-  return(return_param)
+    return_param <- return_param[-1, ]  
+    colnames(return_param)<-thetaname
+    return(return_param)
   }
   if(output=="pred"){
-  return(return_pred)
+    #return(return_pred)
+    test_df<-test_df[-1,]
+    return(test_df)
   }
 }
