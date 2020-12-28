@@ -66,5 +66,27 @@ gg_conc <- ggplot()+
   facet_grid(ID~.)+
   scale_y_log10()
 
+# Study 3.. 
 
-# So just adapt the mrg model script to give normal conc.. 
+Study3concAMono <- export_conc_mono(get_individual_study(PKPDdata,"Study3"),"CpdA")
+
+Study3PredAMono <-mrg_model(get_mrgdata_3("Study3","CpdA","CpdA"),2,"LWS","pred")
+
+
+Study3concBMono <- export_conc_mono(get_individual_study(PKPDdata,"Study3"),"CpdB")
+
+Study3PredBMono <-mrg_model(get_mrgdata_3("Study3","CpdB","CpdB"),2,"LWS","pred")
+
+
+gg_conc <- ggplot()+
+  geom_line(data=Study3concAMono,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
+  geom_line(data=Study3PredAMono,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
+  facet_grid(ID~.)+
+  scale_y_log10()
+
+
+gg_conc <- ggplot()+
+  geom_line(data=Study3concBMono,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
+  geom_line(data=Study3PredBMono,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
+  facet_grid(ID~.)+
+  scale_y_log10()
