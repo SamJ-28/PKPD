@@ -19,6 +19,14 @@ Study1Pred_1cmt <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"LWS","pred")
 Study1Param_2cmt <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","params")
 Study1Pred_2cmt <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","pred")
 
+
+Study1Param_OLS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS","params")
+Study1Pred_OLS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS","pred")
+
+
+Study1Param_OLS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS","params")
+Study1Pred_OLS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS","pred")
+
 # Study 2
 Study2Param_1cmt <-mrg_model(get_mrgdata_12("Study2","CpdB"),1,"LWS","params")
 Study2Pred_1cmt <-mrg_model(get_mrgdata_12("Study2","CpdB"),1,"LWS","pred")
@@ -87,6 +95,15 @@ Study3PredACombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS
 Study3concBCombi <- export_conc_combi(get_individual_study(PKPDdata,"Study3"),"CpdB")
 
 Study3PredBCombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","pred")
+
+# Params
+
+
+Study3ParamAMono<-mrg_model(get_mrgdata_3("Study3","CpdA","CpdA"),2,"LWS","params")
+Study3ParamBMono<-mrg_model(get_mrgdata_3("Study3","CpdB","CpdB"),2,"LWS","params")
+
+Study3ParamACombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS","params")
+Study3ParamBCombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","params")
 
 
 gg_conc <- ggplot()+

@@ -361,7 +361,7 @@ mrg_model<-function(data, compartments, optimizer,output){
     subset_data <- filter(data,ID==i)
     
     if(optimizer=="OLS"){
-      fit <- optim(par = theta, fn=objOLS, theta = theta, data=subset_data)
+      fit <- optim(par = theta, fn=objOLS, theta = theta, data=subset_data, method="L-BFGS-B",lower=0.0001)
       pred <- objOLS(fit$par, theta, subset_data, pred = TRUE)
     }
     
