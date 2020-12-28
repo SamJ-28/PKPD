@@ -78,6 +78,17 @@ Study3concBMono <- export_conc_mono(get_individual_study(PKPDdata,"Study3"),"Cpd
 Study3PredBMono <-mrg_model(get_mrgdata_3("Study3","CpdB","CpdB"),2,"LWS","pred")
 
 
+
+Study3concACombi <- export_conc_combi(get_individual_study(PKPDdata,"Study3"),"CpdA")
+
+Study3PredACombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS","pred")
+
+
+Study3concBCombi <- export_conc_combi(get_individual_study(PKPDdata,"Study3"),"CpdB")
+
+Study3PredBCombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","pred")
+
+
 gg_conc <- ggplot()+
   geom_line(data=Study3concAMono,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
   geom_line(data=Study3PredAMono,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
@@ -88,5 +99,19 @@ gg_conc <- ggplot()+
 gg_conc <- ggplot()+
   geom_line(data=Study3concBMono,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
   geom_line(data=Study3PredBMono,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
+  facet_grid(ID~.)+
+  scale_y_log10()
+
+
+gg_conc <- ggplot()+
+  geom_line(data=Study3concACombi,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
+  geom_line(data=Study3PredACombi,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
+  facet_grid(ID~.)+
+  scale_y_log10()
+
+
+gg_conc <- ggplot()+
+  geom_line(data=Study3concBCombi,aes(x=NT,y=DV,group=ID,color=as.factor(ID)))+
+  geom_line(data=Study3PredBCombi,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
   facet_grid(ID~.)+
   scale_y_log10()

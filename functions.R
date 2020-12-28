@@ -99,7 +99,6 @@ get_par <- function(studyDat, which_treatment){
 # In an ideal world they would be treated as seperate studies for data entry.
 # There's some hard-coding in here for now due to time - want to get the mrgsolve model working. 
 
-# todos: select
 
 get_dose_combi <- function(Study,which_compound,combination){
   
@@ -136,7 +135,7 @@ get_dose_combi <- function(Study,which_compound,combination){
 
 # which compound is derelict here 
 get_dose_mono <-function(Study,which_compound){
-    print("Only use for Study 1 and 2")
+
     StudyDose <- Study %>%
       filter(str_detect(NAME, "Dose") & str_detect(NAME,which_compound))%>%
       select(ID,NT,AMT)
@@ -170,6 +169,7 @@ export_conc_mono <- function(studyDat,which_run){
   
 }
 
+# Export concs from Study 3, combination runs. 
 export_conc_combi <- function(Study,which_compound){
   
   
