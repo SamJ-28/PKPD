@@ -1,5 +1,7 @@
 # TODO: consistent parameter naming strategy
 
+PKPDdata<-read.csv("D:/SAM/Documents/Interview/All_PKPDdata.csv")
+
 ### Functions file to be read by mrgsolve / plotting / markdown files. 
 library(tidyverse)
 library(ggplot2)
@@ -323,8 +325,12 @@ objLWS <- function(p, theta, data, wt, pred = FALSE) {
 
 # Code draws heavily from metrum github resources:
 # https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
+
+# DATA needs to be output of get_mrg functions, won't work otherwise..! 
 mrg_model<-function(data, compartments, optimizer,output){
   
+  print("data must be the output of get_mrgdata 12 or 3. Errors may be related to incorrect
+        data entry.")
 
   if(compartments==1){
   mod <- modlib("pk1")
@@ -338,7 +344,7 @@ mrg_model<-function(data, compartments, optimizer,output){
   all_ID <- unique(data$ID)
   loop_ID <- 0
   
-  return_fit <- matrix(nrow=1,ncol=length(theta))
+  return_param <- matrix(nrow=1,ncol=length(theta))
   return_pred <- list()
   for( i in all_ID){
     
@@ -357,10 +363,15 @@ mrg_model<-function(data, compartments, optimizer,output){
       pred <- objLWS(fit$par, theta, subset_data, wt = 1/dv, pred = TRUE)
     }
     
-    return_fit <- rbind(return_fit,fit$par)
+    return_param <- rbind(return_param,fit$par)
     return_pred[[loop_ID]] <- pred$CP
   } # patient loop
   
-  return(return_fit)
-
+  if(output=="params"){
+  return_param <- return_param[-1, ]  
+  return(return_param)
+  }
+  if(output=="pred"){
+  return(return_pred)
+  }
 }
