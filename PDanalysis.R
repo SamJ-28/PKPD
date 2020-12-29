@@ -83,7 +83,12 @@ doseResponse48 <- function(data,which_compound){
   if(which_compound=="CpdB"){
     doses <- unique(data48$DOSECpdB)
   }
-  
+  if(which_compound=="Combination"){
+    data48 <- data48%>%
+      mutate(combined_dose=DOSECpdA+DOSECpdB)
+    
+    doses <- unique(data48$combined_dose)
+  }
   
   # Loop through each dose for the values of parasitaemia
   
@@ -99,6 +104,10 @@ doseResponse48 <- function(data,which_compound){
       dosesubset <- data48%>%
         filter(DOSECpdB==i)
     }
+    if(which_compound=="Combination"){
+      dosesubset <- data48%>%
+        filter(combined_dose==i)
+    }
     
     dose_mean<- median(dosesubset$DV)
     
@@ -112,7 +121,19 @@ doseResponse48 <- function(data,which_compound){
 }  
 
 monoA <- doseResponse48(study3CpdA_par,"CpdA")
+actualA <- doseResponse48(study1CpdA_par,"CpdA")
+
 combiA<-doseResponse48(study3Combi_par,"CpdA")
 
 monoB <- doseResponse48(study3CpdB_par,"CpdB")
+actualB <- doseResponse48(study2CpdB_par,"CpdB")
+
 combiB<-doseResponse48(study3Combi_par,"CpdB")
+
+combi_add <- doseResponse48(study3Combi_par,"Combination")
+
+dose_response <- ggplot()+
+  geom_line(data=combi_add,aes(y=Response,x=Dose,color="blue"))+
+  geom_line(data=monoA,aes(y=Response,x=Dose,color="Red"))+
+  geom_line(data=monoB,aes(y=Response,x=Dose,color="Green"))
+  
