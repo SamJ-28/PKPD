@@ -49,4 +49,70 @@ spaghetti_par(study3Combi_par)+
   geom_vline(xintercept=48)+
   theme(legend.position = "none")
 
-#ggsave("parasitaemiadata.tiff")
+spaghetti_par(study1CpdA_par)+
+  facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
+  xlab("Time")+
+  ylab("Log % change in parasitized red blood cells")+
+  geom_vline(xintercept=48)+
+  theme(legend.position = "none")
+
+spaghetti_par(study3CpdA_par)+
+  facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
+  xlab("Time")+
+  ylab("Log % change in parasitized red blood cells")+
+  geom_vline(xintercept=48)+
+  theme(legend.position = "none")
+
+
+spaghetti_par(study3CpdB_par)+
+  facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
+  xlab("Time")+
+  ylab("Log % change in parasitized red blood cells")+
+  geom_vline(xintercept=48)+
+  theme(legend.position = "none")
+  
+doseResponse48 <- function(data,which_compound){
+  
+  data48 <- data %>%
+    filter(TIME==48)
+  
+  if(which_compound=="CpdA"){
+   doses <- unique(data48$DOSECpdA)
+  }
+  
+  if(which_compound=="CpdB"){
+    doses <- unique(data48$DOSECpdB)
+  }
+  
+  
+  # Loop through each dose for the values of parasitaemia
+  
+  response<-c()
+  for(i in doses){
+    
+    if(which_compound=="CpdA"){
+      dosesubset <- data48%>%
+        filter(DOSECpdA==i)
+    }
+    
+    if(which_compound=="CpdB"){
+      dosesubset <- data48%>%
+        filter(DOSECpdB==i)
+    }
+    
+    dose_mean<- median(dosesubset$DV)
+    
+    response<-c(response,dose_mean)
+  }
+  
+  dose_response <- data.frame(Dose=doses,Response=response) %>%
+    arrange(Dose)
+  
+  return(dose_response)
+}  
+
+monoA <- doseResponse48(study3CpdA_par,"CpdA")
+combiA<-doseResponse48(study3Combi_par,"CpdA")
+
+monoB <- doseResponse48(study3CpdB_par,"CpdB")
+combiB<-doseResponse48(study3Combi_par,"CpdB")
