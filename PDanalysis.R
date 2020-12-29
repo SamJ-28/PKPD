@@ -18,15 +18,35 @@ study3 <- get_individual_study(PKPDdata,"Study3")
 study1CpdA_par <- get_par(study1,"CpdA")
 study2CpdB_par <- get_par(study2,"CpdB")
 
+
+study1CpdA_par <- get_par(study1,"CpdA")
+study2CpdB_par <- get_par(study2,"CpdB")
+
+
+study3CpdA_par <- get_par(study3,"CpdA")
+study3CpdB_par <- get_par(study3,"CpdB")
+study3Combi_par <- get_par(study3,"Combination")
+
 # pull in plot function 
 
 spaghetti_par <- function(Study){
   
   print("Takes get_par")
   gg_conc <- ggplot()+
-    geom_line(data=Study,aes(y=DV,x=NT,color=as.factor(Study$ID)))+
-    facet_grid(ID~.)
+    geom_point(data=Study,aes(y=DV,x=NT,color=as.factor(Study$ID),group=as.factor(Study$ID)))+
+    geom_line(data=Study,aes(y=DV,x=NT,color=as.factor(Study$ID),group=as.factor(Study$ID)))+
     theme_bw()
   
   return(gg_conc)
 }
+
+# Facets are a nice way of splitting the very dense Study3 data.. 
+
+spaghetti_par(study3Combi_par)+
+  facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
+  xlab("Time")+
+  ylab("Log % change in parasitized red blood cells")+
+  geom_vline(xintercept=48)+
+  theme(legend.position = "none")
+
+#ggsave("parasitaemiadata.tiff")
