@@ -163,7 +163,7 @@ dose_response<-ggplot()+
 # Need to link conc at a certain time to response at a certain time. 
 
 # study is the result of get_individual_study.. 
-conc_response <- function(study,which_compound){
+conc_response <- function(study,which_compound,combination){
   
   # Response is pulled by getpar. 
   response <- get_par(study,which_compound)
@@ -172,6 +172,15 @@ conc_response <- function(study,which_compound){
     select(ID,TIME,DV)
   
   # For the same study and compound, pull conc.. 
+  if(combination==0){
+    conc <- export_conc_mono(study,which_compound)
+  }
+  if(combination==1){
+    conc <- export_conc_combi(study,which_compound)
+  }
   
+  # conc is "pre-trimmed". 
+  print(trim_response)
+  print(conc)
   
 }
