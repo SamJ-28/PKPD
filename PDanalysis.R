@@ -71,7 +71,10 @@ spaghetti_par(study3CpdB_par)+
   geom_vline(xintercept=48)+
   theme(legend.position = "none")
   
-doseResponse48 <- function(data,which_compound,average){
+# Function takes output of get_par. 
+# Hashed out parts can return mean / median etc.. 
+
+doseResponse48 <- function(data,which_compound){
   
   data48 <- data %>%
     filter(TIME==48)
@@ -125,6 +128,7 @@ doseResponse48 <- function(data,which_compound,average){
   
   # Return dose_response if you want the mean.. 
   #return(dose_response)
+  individual_data<-individual_data[-1,]
   return(individual_data)
 }  
 
@@ -147,3 +151,7 @@ dose_response <- ggplot()+
   geom_smooth(data=combiA,aes(y=Response,x=Dose,color="Blue"),method=lm) 
 
 # Actually, if i'm fitting lm() there's no need to take an average. 
+
+dose_response<-ggplot()+
+  geom_smooth(data=actualA,aes(y=response,x=dose),method=lm)+
+  geom_smooth(data=combiA,aes(y=response,x=dose),method=lm)
