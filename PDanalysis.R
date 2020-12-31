@@ -71,7 +71,7 @@ spaghetti_par(study3CpdB_par)+
   geom_vline(xintercept=48)+
   theme(legend.position = "none")
   
-doseResponse48 <- function(data,which_compound){
+doseResponse48 <- function(data,which_compound,average){
   
   data48 <- data %>%
     filter(TIME==48)
@@ -90,6 +90,7 @@ doseResponse48 <- function(data,which_compound){
     doses <- unique(data48$combined_dose)
   }
   
+  individual_data <- data.frame(dose=NA,response=NA)
   # Loop through each dose for the values of parasitaemia
   
   response<-c()
@@ -108,17 +109,25 @@ doseResponse48 <- function(data,which_compound){
       dosesubset <- data48%>%
         filter(combined_dose==i)
     }
-    
-    dose_mean<- median(dosesubset$DV)
+
+    individual_data_bind <- data.frame(dose=rep(i,times=length(dosesubset$DV)),response=dosesubset$DV)
+    dose_mean<- mean(dosesubset$DV)
     
     response<-c(response,dose_mean)
+    
+    
+    individual_data <- rbind(individual_data,individual_data_bind)
   }
+  
   
   dose_response <- data.frame(Dose=doses,Response=response) %>%
     arrange(Dose)
   
-  return(dose_response)
+  # Return dose_response if you want the mean.. 
+  #return(dose_response)
+  return(individual_data)
 }  
+
 
 monoA <- doseResponse48(study3CpdA_par,"CpdA")
 actualA <- doseResponse48(study1CpdA_par,"CpdA")
@@ -128,12 +137,13 @@ combiA<-doseResponse48(study3Combi_par,"CpdA")
 monoB <- doseResponse48(study3CpdB_par,"CpdB")
 actualB <- doseResponse48(study2CpdB_par,"CpdB")
 
+print("marker")
 combiB<-doseResponse48(study3Combi_par,"CpdB")
 
-combi_add <- doseResponse48(study3Combi_par,"Combination")
+#combi_add <- doseResponse48(study3Combi_par,"Combination")
 
 dose_response <- ggplot()+
-  geom_line(data=combi_add,aes(y=Response,x=Dose,color="blue"))+
-  geom_line(data=monoA,aes(y=Response,x=Dose,color="Red"))+
-  geom_line(data=monoB,aes(y=Response,x=Dose,color="Green"))
-  
+  geom_smooth(data=actualA,aes(y=Response,x=Dose,color="Red"),method=lm )+ 
+  geom_smooth(data=combiA,aes(y=Response,x=Dose,color="Blue"),method=lm) 
+
+# Actually, if i'm fitting lm() there's no need to take an average. 
