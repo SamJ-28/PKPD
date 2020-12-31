@@ -73,7 +73,7 @@ spaghetti_par(study3CpdB_par)+
   
 # Function takes output of get_par. 
 # Hashed out parts can return mean / median etc.. 
-
+# Just calculates response at 48h and relates to dose. May not be useful.. 
 doseResponse48 <- function(data,which_compound){
   
   data48 <- data %>%
@@ -163,24 +163,60 @@ dose_response<-ggplot()+
 # Need to link conc at a certain time to response at a certain time. 
 
 # study is the result of get_individual_study.. 
+
+# This might be tricky. I'm reluctant to fudge time-points. 
+# Can we NA missings? 
+# This function might not be useful. 
 conc_response <- function(study,which_compound,combination){
   
   # Response is pulled by getpar. 
-  response <- get_par(study,which_compound)
-  
-  trim_response <- response %>%
-    select(ID,TIME,DV)
+   
   
   # For the same study and compound, pull conc.. 
   if(combination==0){
     conc <- export_conc_mono(study,which_compound)
+    response <- get_par(study,which_compound)
   }
+  
   if(combination==1){
     conc <- export_conc_combi(study,which_compound)
+    response <- get_par(study,"Combination")
   }
   
-  # conc is "pre-trimmed". 
-  print(trim_response)
-  print(conc)
+  trim_response <- response %>%
+    select(ID,NT,DV)
   
+  # conc is "pre-trimmed". 
+  IDs <- unique(conc$ID)
+  
+  
+  study_response_conc <- data.frame(TIME=NA,ID=NA,conc=NA,response=NA)
+  for(i in IDs){
+    
+    conc_subset <- filter(conc,ID==i)
+    response_subset <- filter(trim_response, ID==i)
+    
+    # Union or intersect? Either way... 
+    time_intersect <- intersect(conc_subset$NT,response_subset$NT)
+    
+    # For each portion of time intersect, we store data at that time for conc and response for the ID.. 
+    for(t in time_intersect){
+      
+      intersect_data <- data.frame(TIME=t, ID=i, conc=filter(conc_subset,NT==t)$DV,response=filter(response_subset,NT==t)$DV)
+      
+      study_response_conc <- rbind(study_response_conc,intersect_data)
+    }
+  }
+  study_response_conc <- study_response_conc[-1,]
+  return(study_response_conc)
 }
+
+S3CombiA <- conc_response(study3,"CpdA",1)
+S3CombiA1Dose <- filter(conc_response(study3,"CpdA",1),TIME==24)
+
+conc_response<-ggplot()+
+  geom_smooth(data=S3CombiA1Dose,aes(y=response,x=conc),method="glm",se=FALSE) 
+
+
+conc_response<-ggplot()+
+  geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))
