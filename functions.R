@@ -144,6 +144,8 @@ get_dose_mono <-function(Study,which_compound){
 }
 
 # Pull and trim the data for use in mrgsolve*
+# Should really just remove the which_run bit.. 
+
 export_conc_mono <- function(studyDat,which_run){
   
   # which_run is only needed for study 3

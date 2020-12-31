@@ -151,7 +151,27 @@ dose_response <- ggplot()+
   geom_smooth(data=combiA,aes(y=Response,x=Dose,color="Blue"),method=lm) 
 
 # Actually, if i'm fitting lm() there's no need to take an average. 
+# Note that this is a log-linear regression mode... 
 
 dose_response<-ggplot()+
   geom_smooth(data=actualA,aes(y=response,x=dose),method=lm)+
   geom_smooth(data=combiA,aes(y=response,x=dose),method=lm)
+
+# Also need conc response. 
+# So need conc for each patient.. 
+# Use the export conc functions. 
+# Need to link conc at a certain time to response at a certain time. 
+
+# study is the result of get_individual_study.. 
+conc_response <- function(study,which_compound){
+  
+  # Response is pulled by getpar. 
+  response <- get_par(study,which_compound)
+  
+  trim_response <- response %>%
+    select(ID,TIME,DV)
+  
+  # For the same study and compound, pull conc.. 
+  
+  
+}
