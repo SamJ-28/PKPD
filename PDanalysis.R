@@ -197,6 +197,11 @@ conc_response <- function(study,which_compound,combination){
     response_subset <- filter(trim_response, ID==i)
     
     # Union or intersect? Either way... 
+    # Also alters... hrm. 
+    
+    # MODIFIES 23 TO 24... BAD WORKAROUND
+    conc_subset$NT[which(conc_subset$NT==23.0)]<-24
+    
     time_intersect <- intersect(conc_subset$NT,response_subset$NT)
     
     # For each portion of time intersect, we store data at that time for conc and response for the ID.. 
@@ -212,11 +217,26 @@ conc_response <- function(study,which_compound,combination){
 }
 
 S3CombiA <- conc_response(study3,"CpdA",1)
+
 S3CombiA1Dose <- filter(conc_response(study3,"CpdA",1),TIME==24)
 
-conc_response<-ggplot()+
-  geom_smooth(data=S3CombiA1Dose,aes(y=response,x=conc),method="glm",se=FALSE) 
+S1A <- conc_response(study1,"CpdA",0)
+S1Dose <- filter(S1A,TIME==24)
 
+
+conc_response<-ggplot()+
+  geom_smooth(data=S3CombiA1Dose,aes(y=response,x=conc),method="glm",se=FALSE)+
+  coord_cartesian(ylim=c(-1,1))
 
 conc_response<-ggplot()+
   geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))
+
+conc_response<-ggplot()+
+  geom_smooth(data=S1Dose,aes(y=response,x=conc),method="glm",se=FALSE)+
+  coord_cartesian(ylim=c(-1,1))
+
+# Pull in dose to double check 
+S1AmonoDose <- get_dose_mono(study1,"CpdA")
+S3AmonoDose <- get_dose_combi(study3,"CpdA",1)
+
+# TODO: Response is time 24... but conc isn't. 

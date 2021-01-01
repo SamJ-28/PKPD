@@ -42,9 +42,11 @@ get_conc3 <- function(studyDat){
 
 # Gets conc for study 3 and selects the monotherapies or the combination 
 # Takes input of get_conc3(Study3), will work with Study 1 and 2 (but not needed)
-# todo: make it just take study object i.e the output of get_individual_study
+
 
 get_conc_combi <- function(dat,which_run){
+  
+  dat <- get_conc3(dat)
   
   print("Takes the input of get_conc3(study)")
   if(which_run=="CpdA"){
