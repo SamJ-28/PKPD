@@ -154,8 +154,19 @@ dose_response <- ggplot()+
 # Note that this is a log-linear regression mode... 
 
 dose_response<-ggplot()+
-  geom_smooth(data=actualA,aes(y=response,x=dose),method=lm)+
-  geom_smooth(data=combiA,aes(y=response,x=dose),method=lm)
+  geom_point(data=rbind(actualA,monoA),aes(y=response,x=dose))+
+  geom_point(data=combiA,aes(y=response,x=dose))+
+  geom_smooth(data=rbind(actualA,monoA),aes(y=response,x=dose),method="loess")+
+  geom_smooth(data=combiA,aes(y=response,x=dose),method="loess")+
+  scale_x_log10()
+
+
+dose_response<-ggplot()+
+  geom_point(data=rbind(actualB,monoB),aes(y=response,x=dose))+
+  geom_point(data=combiB,aes(y=response,x=dose))+
+  geom_smooth(data=rbind(actualB,monoB),aes(y=response,x=dose),method="glm")+
+  geom_smooth(data=combiB,aes(y=response,x=dose),method="glm")+
+  scale_x_log10()
 
 # Also need conc response. 
 # So need conc for each patient.. 

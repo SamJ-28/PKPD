@@ -43,10 +43,9 @@ get_conc3 <- function(studyDat){
 # Gets conc for study 3 and selects the monotherapies or the combination 
 # Takes input of get_conc3(Study3), will work with Study 1 and 2 (but not needed)
 
-
 get_conc_combi <- function(dat,which_run){
   
-  dat <- get_conc3(dat)
+  #dat <- get_conc3(dat)
   
   print("Takes the input of get_conc3(study)")
   if(which_run=="CpdA"){
@@ -182,6 +181,43 @@ export_conc_combi <- function(Study,which_compound){
     select(ID,NT,DV)
   
   
+  
+  return(conc_data)
+  
+}
+
+export_conc_combi_doses <- function(Study,which_compound){
+  
+  
+  conc_data <- get_conc_combi(get_conc3(Study),"Combination")%>%
+    filter(Compound==which_compound)%>%
+    select(ID,NT,DV,Dose)
+  
+  
+  
+  return(conc_data)
+  
+}
+export_conc_mono_doses <- function(studyDat,which_run){
+  
+  # which_run is only needed for study 3
+  if(missing(which_run)){
+    
+    # load drug data
+    conc_data <- get_conc3(studyDat) %>%
+      select(ID,NT,DV)
+    
+  }
+  # Study 3 needs to specify which compound
+  # As it has 2x monotherapies and a combination therapy (that itself has 2x drug concs)
+  else{
+    
+    print("don't use this function for getting the combination data, it needs to be split")    
+    conc_data <- get_conc_combi(get_conc3(studyDat),which_run)%>%
+      select(ID,NT,DV,Dose)
+    
+    
+  }
   
   return(conc_data)
   
