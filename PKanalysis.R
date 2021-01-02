@@ -1,4 +1,10 @@
-# Script to compare and investigate PK parameters / pred from mrgmodels 
+# Script to compare and investigate PK parameters / predictions from mrgmodels 
+# Running the mrg_model functions can be weird if the models (i.e., mod<-modlib(x)) aren't loaded!
+# If errors are returned, go into functions.R and manualy run the mod<-modlib(x) lines within mrg_model().
+# This should then allow this script to be sourced and mrg_model to run properly. 
+
+# Code for the mrg models draws heavily from Metrum github resources:
+# https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
 
 
 library(mrgsolve)

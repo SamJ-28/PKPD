@@ -17,6 +17,8 @@ study3 <- get_individual_study(PKPDdata,"Study3")
 
 study1_conc <- export_conc_mono_doses(study1,"CpdA")
 study2_conc <- export_conc_mono_doses(study2,"CpdB")
+
+study3_conc <- get_conc3(study3)
 # Base function for spaghetti plots.
 spaghetti <- function(Study){
 
@@ -82,4 +84,23 @@ spaghetti_study2_dose <-spaghetti_dose(study2_conc)+
   geom_vline(xintercept=dose_times,linetype="dashed")
  
 
-ggsave("spaghetti_study21_conc_dose.tiff")
+#ggsave("spaghetti_study2_conc_dose.tiff")
+
+
+spaghetti_study3_conc <-spaghetti(study3_conc)+
+  ggtitle("Study 3, concentration of compound A and compound B")+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
+  scale_x_continuous(name="Time (hours)")+
+  labs(color="Patient ID")+
+  geom_vline(xintercept=dose_times,linetype="dashed")+
+  facet_grid(.~Compound)
+
+#ggsave("spaghetti_study3_conc.tiff")
+
+spaghetti_study3_dose <-spaghetti(study3_conc)+
+  ggtitle("Study 3, concentration of compound A and compound B")+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
+  scale_x_continuous(name="Time (hours)")+
+  labs(color="Patient ID")+
+  geom_vline(xintercept=dose_times,linetype="dashed")+
+  facet_grid(DOSECpdA~DOSECpdB)

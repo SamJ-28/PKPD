@@ -1,4 +1,4 @@
-# Drug conc comparison script
+# Drug conc comparison plotting
 
 library(tidyverse)
 library(ggplot2)
