@@ -45,10 +45,54 @@ Study1GG <- ggplot()+
 
 
 Study2GG <- ggplot()+
+  geom_point(data=Study2_CpdB_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
   geom_smooth(data=Study2_CpdB_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="gam",formula = y ~ x + I(x^2),se=FALSE)+
   scale_y_log10()+
   theme_bw()
 
+
+Study2GG <- ggplot()+
+  geom_point(data=Study2_CpdB_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
+  geom_smooth(data=Study2_CpdB_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="loess",se=FALSE)+
+  scale_y_log10()+
+  theme_bw()
+
+Study3GGA <- ggplot()+
+  geom_point(data=
+               Study3_COMBI_CpdA_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
+  geom_smooth(data=
+                Study3_COMBI_CpdA_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="gam",formula = y ~ x + I(x^2),se=FALSE)+
+  scale_y_log10()+
+  theme_bw()+
+  coord_cartesian(ylim=c(0.001,10))
+
+Study1GGA <- ggplot()+
+  geom_point(data=
+               filter(study1_conc,Dose==5|Dose==10|Dose==25),aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
+  geom_smooth(data=
+                filter(study1_conc,Dose==5|Dose==10|Dose==25),aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="gam",formula = y ~ x + I(x^2),se=FALSE)+
+  scale_y_log10()+
+  theme_bw()+
+  coord_cartesian(ylim=c(0.001,10))
+
+
+Study3GGA <- ggplot()+
+  geom_point(data=
+               Study3_COMBI_CpdA_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
+  geom_smooth(data=
+                Study3_COMBI_CpdA_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="glm",se=FALSE)+
+  scale_y_log10()+
+  theme_bw()+
+  coord_cartesian(ylim=c(0.001,10))
+
+Study1GGA <- ggplot()+
+  geom_point(data=
+               filter(study1_conc,Dose==5|Dose==10|Dose==25),aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)))+
+  geom_smooth(data=
+                filter(study1_conc,Dose==5|Dose==10|Dose==25),aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="glm",se=FALSE)+
+  scale_y_log10()+
+  theme_bw()+
+  coord_cartesian(ylim=c(0.001,10))
 
 Study2GG <- ggplot()+
   geom_smooth(data=Study2_CpdB_Conc,aes(x=NT,y=DV,group=as.factor(Dose),color=as.factor(Dose)),method="loess",se=FALSE)+

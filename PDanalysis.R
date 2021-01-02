@@ -18,13 +18,14 @@ study3 <- get_individual_study(PKPDdata,"Study3")
 study1CpdA_par <- get_par(study1,"CpdA")
 study2CpdB_par <- get_par(study2,"CpdB")
 
-
 study1CpdA_par <- get_par(study1,"CpdA")
 study2CpdB_par <- get_par(study2,"CpdB")
 
-
+# These are the "monotherapy" of CpdA in Study 3
 study3CpdA_par <- get_par(study3,"CpdA")
+# "Monotherapy" of CpdB in Study 3
 study3CpdB_par <- get_par(study3,"CpdB")
+# These are the combination runs 
 study3Combi_par <- get_par(study3,"Combination")
 
 # pull in plot function 
@@ -50,12 +51,16 @@ spaghetti_par(study3Combi_par)+
   theme(legend.position = "none")
 
 spaghetti_par(study1CpdA_par)+
-  facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
+  facet_grid(DOSECpdA~., labeller = label_both)+
   xlab("Time")+
   ylab("Log % change in parasitized red blood cells")+
   geom_vline(xintercept=48)+
   theme(legend.position = "none")
 
+
+
+###################
+#====================
 spaghetti_par(study3CpdA_par)+
   facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
   xlab("Time")+
