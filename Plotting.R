@@ -121,7 +121,6 @@ study3_conc_CpdB <- filter(study3_conc, Compound=="CpdB")
 
 spaghetti_study3_CpdA_conc <-spaghetti(study3_conc_CpdA)+
   ggtitle("Study 3, concentration of compound A")+
-<<<<<<< HEAD
   scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   scale_x_continuous(name="Time (hours)")+
   labs(color="Patient ID")+
@@ -133,8 +132,6 @@ spaghetti_study3_CpdA_conc <-spaghetti(study3_conc_CpdA)+
 
 spaghetti_study3_CpdB_conc <-spaghetti(study3_conc_CpdB)+
   ggtitle("Study 3, concentration of compound B")+
-=======
->>>>>>> 1c64ab91ff0d4620c2dbe1c5a784ec63acca3138
   scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   scale_x_continuous(name="Time (hours)")+
   labs(color="Patient ID")+
@@ -142,7 +139,6 @@ spaghetti_study3_CpdB_conc <-spaghetti(study3_conc_CpdB)+
   facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
   theme(legend.position = "none",strip.text.y = element_text(angle = 0))
 
-<<<<<<< HEAD
 #ggsave("spaghetti_study3_CpdB_conc.tiff")
 
 
@@ -155,8 +151,8 @@ spaghetti_noncomp <-spaghetti(filter(study1_conc,ID==20))+
   labs(color="Patient ID")+
   geom_vline(xintercept=dose_times,linetype="dashed")
 
-ggsave("noncompartmental.tiff")
-=======
+#ggsave("noncompartmental.tiff")
+
 #ggsave("spaghetti_study3_CpdA_conc.tiff")
 
 spaghetti_study3_CpdB_conc <-spaghetti(study3_conc_CpdB)+
@@ -168,5 +164,4 @@ spaghetti_study3_CpdB_conc <-spaghetti(study3_conc_CpdB)+
   facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
   theme(legend.position = "none",strip.text.y = element_text(angle = 0))
 
-ggsave("spaghetti_study3_CpdB_conc.tiff")
->>>>>>> 1c64ab91ff0d4620c2dbe1c5a784ec63acca3138
+#ggsave("spaghetti_study3_CpdB_conc.tiff")
