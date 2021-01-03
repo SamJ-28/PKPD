@@ -433,3 +433,36 @@ mrg_model<-function(data, compartments, optimizer,output){
     return(test_df)
   }
 }
+
+
+
+get_geo_mean <- function(conc_data){
+  
+  doses <- unique(conc_data$Dose)
+  mean_df <- data.frame(Dose=NA,NT=NA,GeoMean=NA)
+  # for each timepoint, get the geo.mean
+  for(d in doses){
+    
+    conc_subset <- conc_data %>%
+      filter(Dose==d)
+    
+    times <- unique(conc_subset$NT)
+    
+    for( t in times){
+      
+      to_get_Mean <- conc_subset%>%
+        filter(NT==t)
+      
+      to_get_Mean_vector <- as.numeric(to_get_Mean$DV)
+      
+      geo_mean <- geoMean(to_get_Mean_vector)
+      
+      df_bind <- data.frame(Dose=d,NT=t,GeoMean=geo_mean)
+      mean_df <- rbind(mean_df,df_bind)
+      
+      
+    }
+  }
+  mean_df<-mean_df[-1,]
+  return(mean_df)
+}
