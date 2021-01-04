@@ -6,6 +6,8 @@
 # Code for the mrg models draws heavily from Metrum github resources:
 # https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
 
+# Note: This script will take a long time to source everything. 
+# I recommend running one-by-one the sections you're interested in. 
 
 library(mrgsolve)
 library (dplyr)
@@ -41,7 +43,7 @@ Study2Param_2cmt <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"LWS","params")
 Study2Pred_2cmt <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"LWS","pred")
 
 # Read in concentration data
-i.e.
+
 Study1conc <- get_conc3(get_individual_study(PKPDdata,"Study1"))
 # Although in all honesty the mrg functions might be better i.e. 
 Study1conc2 <- export_conc_mono(get_individual_study(PKPDdata,"Study1"),"CpdA")
@@ -138,3 +140,7 @@ gg_conc <- ggplot()+
   geom_line(data=Study3PredBCombi,aes(x=time,y=mrgpred,group=ID,color=as.factor(ID)),linetype="dashed")+
   facet_grid(ID~.)+
   scale_y_log10()
+
+
+##########
+# Repeat with OLS_min 
