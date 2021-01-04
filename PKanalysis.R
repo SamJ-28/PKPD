@@ -6,8 +6,10 @@
 # Code for the mrg models draws heavily from Metrum github resources:
 # https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
 
-# Note: This script will take a long time to source everything. 
+# Note: This script will take a long time to run everything. 
 # I recommend running one-by-one the sections you're interested in. 
+# Unfortunately, I have made this inefficient as mrg_model has to be run once for pred and once for param
+# An obvious improvement would be to store them in an array. 
 
 library(mrgsolve)
 library (dplyr)
@@ -144,3 +146,6 @@ gg_conc <- ggplot()+
 
 ##########
 # Repeat with OLS_min 
+
+Study3ParamA_min <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"OLS_min","params")
+Study3PredA_min <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"OLS_min","pred")
