@@ -163,6 +163,10 @@ Study3PredACombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS
 Study3concBCombi <- export_conc_combi_doses(get_individual_study(PKPDdata,"Study3"),"CpdB")
 Study3PredBCombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","pred")
 
+Study3_A_geo_conc <- get_geo_mean(Study3concACombi)
+Study3_B_geo_conc <- get_geo_mean(Study3concBCombi)
+
+
 Study3_A_pred <- drop_na(Study3PredACombi)%>%
   add_dose_data(conc=Study3concACombi)%>%
   select(time,ID,mrgpred,Dose)%>%
@@ -177,6 +181,39 @@ Study3_B_pred <- drop_na(Study3PredBCombi)%>%
   rename(NT=time,DV=mrgpred)%>%
   mutate(method="LWS")%>%
   relocate(ID,NT,DV,Dose,method)
+
+Study3_A_geo <- get_geo_mean(Study3_A_pred)
+Study3_B_geo <- get_geo_mean(Study3_B_pred)
+
+
+Study3_A <- ggplot()+
+  geom_line(data=Study3_A_geo_conc,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study3_A_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  facet_grid(.~Dose)+
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
+
+# Try 3 cmt?
+Study3PredA_3 <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),3,"LWS","pred")
+
+
+Study3PredA_3_v <- drop_na(Study3PredA_3)%>%
+  add_dose_data(conc=Study3concACombi)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="LWS")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+Study3_3cmt_geo <- get_geo_mean(Study3PredA_3_v)
+
+Study3_A_3cmt <- ggplot()+
+  geom_line(data=Study3_A_geo_conc,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study3_3cmt_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  facet_grid(.~Dose)+
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
 
 ########
 # Additional runs
