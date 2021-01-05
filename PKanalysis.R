@@ -90,9 +90,12 @@ Study1_2cmt <- ggplot()+
   geom_line(data=Study1LWS_geo,aes(x=NT,y=GeoMean),color="green",linetype="dashed")+
   geom_line(data=Study1OLSmin_geo,aes(x=NT,y=GeoMean),color="blue",linetype="dashed")+
   facet_grid(.~Dose)+
-  scale_y_log10()+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   coord_cartesian(ylim=c(0.000001,10))+
-  theme_bw()
+  theme_bw()+
+  labs(x="Time")+
+  ggtitle("Geometric means of in vitro concentration and mrgsolve predicted concentrations",subtitle="Study 1, Compound A, 2 compartment model")
+
 
 #######
 # 1 comp
@@ -142,16 +145,21 @@ Study1OLS1_geo <- get_geo_mean(Study1PredOLS1)
 Study1LWS1_geo <- get_geo_mean(Study1PredLWS1)
 Study1OLSmin1_geo <- get_geo_mean(Study1PredOLSmin1)
 
+cols <- c()
+
 Study1_1cmt <- ggplot()+
-  geom_line(data=Study1_geomean,aes(x=NT,y=GeoMean))+
-  geom_line(data=Study1OLS1_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  geom_line(data=Study1_geomean,aes(x=NT,y=GeoMean),color="black")+
+  geom_line(data=Study1OLS1_geo,aes(x=NT,y=GeoMean),color="red",linetype="dashed")+
   geom_line(data=Study1LWS1_geo,aes(x=NT,y=GeoMean),color="green",linetype="dashed")+
   geom_line(data=Study1OLSmin1_geo,aes(x=NT,y=GeoMean),color="blue",linetype="dashed")+
-  facet_grid(.~Dose)+
-  scale_y_log10()+
+  facet_grid(.~Dose,labeller=label_both)+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   coord_cartesian(ylim=c(0.000001,10))+
-  theme_bw()
-  
+  theme_bw()+
+  labs(x="Time")+
+  ggtitle("Geometric means of in vitro concentration and mrgsolve predicted concentrations",subtitle="Study 1, Compound A, 1 compartment model")
+
+ggsave("Study1_preds_1cmt.tiff")
 #######
 # 2 comp works better...
 #######
