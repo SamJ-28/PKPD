@@ -38,6 +38,8 @@ PKPDdata<-read.csv("D:/SAM/Documents/Interview/All_PKPDdata.csv")
 # Examples for presentation
 ########
 # 2 comp:
+# This was the first model I wrote so the labelling for 2cmt is essentially null, whereas 1cmt has _1 tag on objects
+
 Study1ParamLWS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","params")
 Study1PredLWS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","pred")
 
@@ -48,17 +50,49 @@ Study1ParamOLSmin <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","param
 Study1PredOLSmin <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","pred")
 
 
-Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")
+Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")%>%
+  mutate(method="Concentration")
 
-Study1PredOLS <- drop_na(Study1PredOLS)
-Study1PredLWS <- drop_na(Study1PredLWS)
-Study1PredOLSmin <- drop_na(Study1PredOLSmin)
+Study1_geomean<-get_geo_mean(Study1_conc)
 
-gg_conc <- ggplot()+
-  geom_point(data=Study1_conc,aes(x=NT,y=DV,group=ID))+
+Study1PredOLS <- drop_na(Study1PredOLS)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+
+Study1PredLWS <- drop_na(Study1PredLWS)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="LWS")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+
+Study1PredOLSmin <- drop_na(Study1PredOLSmin)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS_min")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+# Can get geomean on these now
+
+Study1OLS_geo <- get_geo_mean(Study1PredOLS)
+Study1LWS_geo <- get_geo_mean(Study1PredLWS)
+Study1OLSmin_geo <- get_geo_mean(Study1PredOLSmin)
+
+Study1_2cmt <- ggplot()+
+  geom_line(data=Study1_geomean,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study1OLS_geo,aes(x=NT,y=GeoMean),color="red",linetype="dashed")+
+  geom_line(data=Study1LWS_geo,aes(x=NT,y=GeoMean),color="green",linetype="dashed")+
+  geom_line(data=Study1OLSmin_geo,aes(x=NT,y=GeoMean),color="blue",linetype="dashed")+
   facet_grid(.~Dose)+
-  scale_y_log10()
-
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
 
 #######
 # 1 comp
@@ -77,6 +111,7 @@ Study1PredOLSmin1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS_min","pred"
 Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")%>%
   mutate(method="Concentration")
 
+Study1_geomean<-get_geo_mean(Study1_conc)
 
 Study1PredOLS1 <- drop_na(Study1PredOLS1)%>%
   add_dose_data(conc=Study1_conc)%>%
@@ -104,9 +139,44 @@ Study1PredOLSmin1 <- drop_na(Study1PredOLSmin1)%>%
 # Can get geomean on these now
 
 Study1OLS1_geo <- get_geo_mean(Study1PredOLS1)
-Study1LWS1_geo <- get_geo_mean(Study1PredLWS)
-Study1PredOLSmin1_geo <- get_geo_mean(Study1PredOLSmin1)
+Study1LWS1_geo <- get_geo_mean(Study1PredLWS1)
+Study1OLSmin1_geo <- get_geo_mean(Study1PredOLSmin1)
 
+Study1_1cmt <- ggplot()+
+  geom_line(data=Study1_geomean,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study1OLS1_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  geom_line(data=Study1LWS1_geo,aes(x=NT,y=GeoMean),color="green",linetype="dashed")+
+  geom_line(data=Study1OLSmin1_geo,aes(x=NT,y=GeoMean),color="blue",linetype="dashed")+
+  facet_grid(.~Dose)+
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
+  
+#######
+# 2 comp works better...
+#######
+# Want to compare Study 3 with 1 and 2, basically. I guess LWS is the best optimizer?? 
+
+Study3concACombi <- export_conc_combi_doses(get_individual_study(PKPDdata,"Study3"),"CpdA")
+Study3PredACombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS","pred")
+
+Study3concBCombi <- export_conc_combi_doses(get_individual_study(PKPDdata,"Study3"),"CpdB")
+Study3PredBCombi <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","pred")
+
+Study3_A_pred <- drop_na(Study3PredACombi)%>%
+  add_dose_data(conc=Study3concACombi)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="LWS")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+
+Study3_B_pred <- drop_na(Study3PredBCombi)%>%
+  add_dose_data(conc=Study3concBCombi)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="LWS")%>%
+  relocate(ID,NT,DV,Dose,method)
 
 ########
 # Additional runs
