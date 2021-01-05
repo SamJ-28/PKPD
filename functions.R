@@ -471,3 +471,26 @@ get_geo_mean <- function(conc_data){
   mean_df<-mean_df[-1,]
   return(mean_df)
 }
+
+# Add dose data to mrgsolve predictions using output of export_conc_mono_dose or export_conc_combi_dose 
+
+add_dose_data <- function(pred, conc){
+  
+  conc_subset <- conc %>%
+    select(ID,Dose)%>%
+    distinct()
+  
+  pred_dose <- pred%>%
+    mutate(Dose=NA)
+  
+  for(i in 1:nrow(pred)){
+    
+    predID <- pred_dose[i,'ID']
+    
+    concrow <- filter(conc_subset,ID==predID)
+    
+    pred_dose[i,'Dose'] <- concrow['Dose']
+  }
+  
+  return(pred_dose)
+}

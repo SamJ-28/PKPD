@@ -1,7 +1,16 @@
 # Script to compare and investigate PK parameters / predictions from mrgmodels 
 # Running the mrg_model functions can be weird if the models (i.e., mod<-modlib(x)) aren't loaded!
+
+#################
 # If errors are returned, go into functions.R and manualy run the mod<-modlib(x) lines within mrg_model().
 # This should then allow this script to be sourced and mrg_model to run properly. 
+# I couldn't work out a fix without losing the functionalized nature of this code. 
+
+#################
+# Such errors will look like: "There was a problem accessing the model shared object.
+# Either the model object is corrupted or the model was 
+# not properly compiled and/or loaded
+#################
 
 # Code for the mrg models draws heavily from Metrum github resources:
 # https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md
@@ -10,6 +19,9 @@
 # I recommend running one-by-one the sections you're interested in. 
 # Unfortunately, I have made this inefficient as mrg_model has to be run once for pred and once for param
 # An obvious improvement would be to store them in an array. 
+
+# Another improvement would be adjusting the model with minimum values of parameters to stop the minus numbers
+# Again, timing issues.
 
 library(mrgsolve)
 library (dplyr)
@@ -20,6 +32,63 @@ library (ggplot2)
 source("functions.R")
 # Hardread data
 PKPDdata<-read.csv("D:/SAM/Documents/Interview/All_PKPDdata.csv")
+
+
+########
+# Examples for presentation
+########
+# 2 comp:
+Study1ParamLWS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","params")
+Study1PredLWS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","pred")
+
+Study1ParamOLS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS","params")
+Study1PredOLS <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS","pred")
+
+Study1ParamOLSmin <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","params")
+Study1PredOLSmin <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","pred")
+
+
+Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")
+
+Study1PredOLS <- drop_na(Study1PredOLS)
+Study1PredLWS <- drop_na(Study1PredLWS)
+Study1PredOLSmin <- drop_na(Study1PredOLSmin)
+
+gg_conc <- ggplot()+
+  geom_point(data=Study1_conc,aes(x=NT,y=DV,group=ID))+
+  facet_grid(.~Dose)+
+  scale_y_log10()
+
+
+#######
+# 1 comp
+#######
+
+Study1ParamLWS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"LWS","params")
+Study1PredLWS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"LWS","pred")
+
+Study1ParamOLS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS","params")
+Study1PredOLS1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS","pred")
+
+Study1ParamOLSmin1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS_min","params")
+Study1PredOLSmin1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS_min","pred")
+
+
+Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")
+
+
+Study1PredOLS1 <- drop_na(Study1PredOLS1)
+Study1PredLWS1 <- drop_na(Study1PredLWS1)
+Study1PredOLSmin1 <- drop_na(Study1PredOLSmin1)
+
+
+gg_conc <- ggplot()+
+  geom_point(data=Study1_conc,aes(x=NT,y=DV,group=ID))+
+  facet_grid(.~Dose)+
+  scale_y_log10()
+########
+# Additional runs
+########
 
 # Study 1
 

@@ -63,11 +63,7 @@ study1_glm <- ggplot()+
   geom_smooth(data=study1CpdA_par,aes(y=DV,x=NT,color=as.factor(study1CpdA_par$DOSECpdA),group=as.factor(study1CpdA_par$DOSECpdA)),method="glm",se=FALSE)
   
 
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 1c64ab91ff0d4620c2dbe1c5a784ec63acca3138
 ###################
 #====================
 spaghetti_par(study3CpdA_par)+
