@@ -7,6 +7,8 @@ library(tidyverse)
 library(ggplot2)
 library(stringr)
 library(mrgsolve)
+library(EnvStats)
+
 # Isolates Study 1, 2, 3 from the full PKPData (which should be hard-read in)
 
 get_individual_study <- function(data,study){

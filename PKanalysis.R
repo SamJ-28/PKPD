@@ -74,18 +74,40 @@ Study1ParamOLSmin1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS_min","para
 Study1PredOLSmin1 <-mrg_model(get_mrgdata_12("Study1","CpdA"),1,"OLS_min","pred")
 
 
-Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")
+Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")%>%
+  mutate(method="Concentration")
 
 
-Study1PredOLS1 <- drop_na(Study1PredOLS1)
-Study1PredLWS1 <- drop_na(Study1PredLWS1)
-Study1PredOLSmin1 <- drop_na(Study1PredOLSmin1)
+Study1PredOLS1 <- drop_na(Study1PredOLS1)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS")%>%
+  relocate(ID,NT,DV,Dose,method)
+  
+
+Study1PredLWS1 <- drop_na(Study1PredLWS1)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="LWS")%>%
+  relocate(ID,NT,DV,Dose,method)
 
 
-gg_conc <- ggplot()+
-  geom_point(data=Study1_conc,aes(x=NT,y=DV,group=ID))+
-  facet_grid(.~Dose)+
-  scale_y_log10()
+Study1PredOLSmin1 <- drop_na(Study1PredOLSmin1)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS_min")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+# Can get geomean on these now
+
+Study1OLS1_geo <- get_geo_mean(Study1PredOLS1)
+Study1LWS1_geo <- get_geo_mean(Study1PredLWS)
+Study1PredOLSmin1_geo <- get_geo_mean(Study1PredOLSmin1)
+
+
 ########
 # Additional runs
 ########
