@@ -387,6 +387,11 @@ mrg_model<-function(data, compartments, optimizer,output){
     theta <- log(c(CL = 100, Q = 100, V2 = 80, V3 = 80, KA = 10))
     thetaname <- c("CL","Q","V2","V3","KA")
   }
+  if(compartments==3){
+    mod <- modlib("pk3cmt")
+    theta <- log(c(CL = 100, Q = 100, VC = 80, VP = 80, VP2=80, KA1 = 10,Q2=100))
+    thetaname <- c("CL","Q","VC","VP","VP2","KA1","Q2")
+  }
   all_ID <- unique(data$ID)
   loop_ID <- 0
   
@@ -496,3 +501,62 @@ add_dose_data <- function(pred, conc){
   
   return(pred_dose)
 }
+
+
+doseResponse24 <- function(data,which_compound){
+  
+  data24 <- data %>%
+    filter(TIME==24)
+  
+  if(which_compound=="CpdA"){
+    doses <- unique(data24$DOSECpdA)
+  }
+  
+  if(which_compound=="CpdB"){
+    doses <- unique(data24$DOSECpdB)
+  }
+  if(which_compound=="Combination"){
+    data24 <- data24%>%
+      mutate(combined_dose=DOSECpdA+DOSECpdB)
+    
+    doses <- unique(data24$combined_dose)
+  }
+  
+  individual_data <- data.frame(dose=NA,response=NA)
+  # Loop through each dose for the values of parasitaemia
+  
+  response<-c()
+  for(i in doses){
+    
+    if(which_compound=="CpdA"){
+      dosesubset <- data24%>%
+        filter(DOSECpdA==i)
+    }
+    
+    if(which_compound=="CpdB"){
+      dosesubset <- data24%>%
+        filter(DOSECpdB==i)
+    }
+    if(which_compound=="Combination"){
+      dosesubset <- data24%>%
+        filter(combined_dose==i)
+    }
+    
+    individual_data_bind <- data.frame(dose=rep(i,times=length(dosesubset$DV)),response=dosesubset$DV)
+    dose_mean<- mean(dosesubset$DV)
+    
+    response<-c(response,dose_mean)
+    
+    
+    individual_data <- rbind(individual_data,individual_data_bind)
+  }
+  
+  
+  dose_response <- data.frame(Dose=doses,Response=response) %>%
+    arrange(Dose)
+  
+  # Return dose_response if you want the mean.. 
+  #return(dose_response)
+  individual_data<-individual_data[-1,]
+  return(individual_data)
+}  
