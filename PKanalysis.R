@@ -224,20 +224,27 @@ Study3_A <- ggplot()+
   geom_line(data=Study3_A_geo_2,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
   geom_line(data=Study3_A_geo_1,aes(x=NT,y=GeoMean),color="blue",linetype="dotted",size=1)+
   facet_grid(.~Dose)+
-  scale_y_log10()+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   coord_cartesian(ylim=c(0.000001,10))+
-  theme_bw()
+  theme_bw()+
+  labs(x="Time")+
+  ggtitle("Geometric means of in vitro concentration and mrgsolve predicted concentrations",subtitle="Study 3, Compound A")
 
+
+#ggsave("Study3_A.tiff")
 
 Study3_B <- ggplot()+
   geom_line(data=Study3_B_geo_conc,aes(x=NT,y=GeoMean))+
   geom_line(data=Study3_B_geo_2,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
   geom_line(data=Study3_B_geo_1,aes(x=NT,y=GeoMean),color="blue",linetype="dotted",size=1)+
   facet_grid(.~Dose)+
-  scale_y_log10()+
+  scale_y_continuous(trans="log10",name="Concentration of drug (ug/mL)")+
   coord_cartesian(ylim=c(0.000001,10))+
-  theme_bw()
+  theme_bw()+
+  labs(x="Time")+
+  ggtitle("Geometric means of in vitro concentration and mrgsolve predicted concentrations",subtitle="Study 3, Compound B")
 
+#ggsave("Study3_B.tiff")
 
 # Try 3 cmt?
 Study3PredA_3 <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),3,"LWS","pred")
@@ -289,10 +296,47 @@ Study2PredB_min <- drop_na(Study2Pred_CPDB_2_min)%>%
   relocate(ID,NT,DV,Dose,method)
 
 
+Study1_A_min_geo <- get_geo_mean(Study1PredA_min)
+
+Study2_B_min_geo <- get_geo_mean(Study2PredB_min)
+
+
+Study1_geomean<-get_geo_mean(Study1_conc)
+
+Study2_geomean<-get_geo_mean(Study2_conc)
+
+Study1_min <- ggplot()+
+  geom_line(data=Study1_geomean,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study1_A_min_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  facet_grid(.~Dose)+
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
+
+Study2_min <- ggplot()+
+  geom_line(data=Study2_geomean,aes(x=NT,y=GeoMean))+
+  geom_line(data=Study2_B_min_geo,aes(x=NT,y=GeoMean),color="red",linetype="dotted",size=1)+
+  facet_grid(.~Dose)+
+  scale_y_log10()+
+  coord_cartesian(ylim=c(0.000001,10))+
+  theme_bw()
+
+# Now compare params
 
 Study1Param_CPDA_2 <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","params")
 Study2Param_CPDB_2 <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"LWS","params")
 
 
+Study3Param_A_2 <-mrg_model(get_mrgdata_3("Study3","Combination","CpdA"),2,"LWS","params")
+Study3Param_B_2 <-mrg_model(get_mrgdata_3("Study3","Combination","CpdB"),2,"LWS","params")
+
 Study1Param_CPDA_2_min <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","params")
 Study2Param_CPDB_2_min <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"OLS_min","params")
+
+# Test modified Dosing:
+
+
+Study1_mod <- get_mrgdata_12("Study1","CpdA")
+Study1_mod$amt <- Study1_mod$amt*1000
+
+ModA <- mrg_model(Study1_mod,2,"LWS","pred")
