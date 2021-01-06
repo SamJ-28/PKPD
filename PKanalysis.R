@@ -161,7 +161,7 @@ Study1_1cmt <- ggplot()+
 
 #ggsave("Study1_preds_1cmt.tiff")
 #######
-# 2 comp works better...
+# Testing compartments: 
 #######
 # Want to compare Study 3 with 1 and 2, basically. I guess LWS is the best optimizer?? 
 
@@ -261,8 +261,33 @@ Study3_A_3cmt <- ggplot()+
   theme_bw()
 
 ########
-# PArmameter comparisons between mono / combi:
+# Parmameter comparisons between mono / combi:
 ########
+
+Study1_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study1"),"CpdA")%>%
+  mutate(method="Concentration")
+
+Study2_conc <- export_conc_mono_doses(get_individual_study(PKPDdata,"Study2"),"CpdB")%>%
+  mutate(method="Concentration")
+
+Study1Pred_CPDA_2_min <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","pred")
+
+Study2Pred_CPDB_2_min <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"OLS_min","pred")
+
+Study1PredA_min <- drop_na(Study1Pred_CPDA_2_min)%>%
+  add_dose_data(conc=Study1_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS_min")%>%
+  relocate(ID,NT,DV,Dose,method)
+
+Study2PredB_min <- drop_na(Study2Pred_CPDB_2_min)%>%
+  add_dose_data(conc=Study2_conc)%>%
+  select(time,ID,mrgpred,Dose)%>%
+  rename(NT=time,DV=mrgpred)%>%
+  mutate(method="OLS_min")%>%
+  relocate(ID,NT,DV,Dose,method)
+
 
 
 Study1Param_CPDA_2 <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"LWS","params")
@@ -270,7 +295,4 @@ Study2Param_CPDB_2 <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"LWS","params")
 
 
 Study1Param_CPDA_2_min <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","params")
-Study1Param_CPDA_2_min <-mrg_model(get_mrgdata_12("Study1","CpdA"),2,"OLS_min","pred")
-
 Study2Param_CPDB_2_min <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"OLS_min","params")
-Study2Param_CPDB_2_min <-mrg_model(get_mrgdata_12("Study2","CpdB"),2,"OLS_min","pred")
