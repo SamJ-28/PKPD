@@ -81,65 +81,24 @@ spaghetti_par(study2CpdB_par)+
 
 # Conc response needs to be single dose i.e. that the response is taken at 23/24 
 # Before the second dose.. 
-conc_response <- function(study,which_compound,combination){
-  
-  # Response is pulled by getpar. 
-   
-  
-  # For the same study and compound, pull conc.. 
-  if(combination==0){
-    conc <- export_conc_mono(study,which_compound)
-    response <- get_par(study,which_compound)
-  }
-  
-  if(combination==1){
-    conc <- export_conc_combi(study,which_compound)
-    response <- get_par(study,"Combination")
-  }
-  
-  trim_response <- response %>%
-    select(ID,NT,DV)
-  
-  # conc is "pre-trimmed". 
-  IDs <- unique(conc$ID)
-  
-  
-  study_response_conc <- data.frame(TIME=NA,ID=NA,conc=NA,response=NA)
-  for(i in IDs){
-    
-    conc_subset <- filter(conc,ID==i)
-    response_subset <- filter(trim_response, ID==i)
-    
-    # Union or intersect? Either way... 
-    # Also alters... hrm. 
-    
-    # MODIFIES 23 TO 24... BAD WORKAROUND
-    conc_subset$NT[which(conc_subset$NT==23.0)]<-24
-    
-    time_intersect <- intersect(conc_subset$NT,response_subset$NT)
-    
-    # For each portion of time intersect, we store data at that time for conc and response for the ID.. 
-    for(t in time_intersect){
-      
-      intersect_data <- data.frame(TIME=t, ID=i, conc=filter(conc_subset,NT==t)$DV,response=filter(response_subset,NT==t)$DV)
-      
-      study_response_conc <- rbind(study_response_conc,intersect_data)
-    }
-  }
-  study_response_conc <- study_response_conc[-1,]
-  return(study_response_conc)
-}
 
 S3CombiA <- conc_response(study3,"CpdA",1)
+S3CombiA1Dose <- filter(S3CombiA,TIME==24)
 
-S3CombiA1Dose <- filter(conc_response(study3,"CpdA",1),TIME==24)
+S3CombiB <- conc_response(study3,"CpdB",1)
+S3CombiB1Dose <- filter(S3CombiB,TIME==24)
 
 S1A <- conc_response(study1,"CpdA",0)
 S1Dose <- filter(S1A,TIME==24)
 
+S2B <- conc_response(study2,"CpdB",0)
+S2Dose <- filter(S2B,TIME==24)
+##################
+# Plots of conc response
+##################
 
-conc_response<-ggplot()+
-  geom_smooth(data=S3CombiA1Dose,aes(y=response,x=conc),method="glm",se=FALSE)+
+S3conc_response<-ggplot()+
+  geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))+
   coord_cartesian(ylim=c(-1,1))
 
 conc_response<-ggplot()+

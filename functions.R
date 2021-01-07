@@ -560,3 +560,54 @@ doseResponse24 <- function(data,which_compound){
   individual_data<-individual_data[-1,]
   return(individual_data)
 }  
+
+
+
+conc_response <- function(study,which_compound,combination){
+  
+  # Response is pulled by getpar. 
+  
+  
+  # For the same study and compound, pull conc.. 
+  if(combination==0){
+    conc <- export_conc_mono(study,which_compound)
+    response <- get_par(study,which_compound)
+  }
+  
+  if(combination==1){
+    conc <- export_conc_combi(study,which_compound)
+    response <- get_par(study,"Combination")
+  }
+  
+  trim_response <- response %>%
+    select(ID,NT,DV)
+  
+  # conc is "pre-trimmed". 
+  IDs <- unique(conc$ID)
+  
+  
+  study_response_conc <- data.frame(TIME=NA,ID=NA,conc=NA,response=NA)
+  for(i in IDs){
+    
+    conc_subset <- filter(conc,ID==i)
+    response_subset <- filter(trim_response, ID==i)
+    
+    # Union or intersect? Either way... 
+    # Also alters... hrm. 
+    
+    # MODIFIES 23 TO 24... BAD WORKAROUND
+    conc_subset$NT[which(conc_subset$NT==23.0)]<-24
+    
+    time_intersect <- intersect(conc_subset$NT,response_subset$NT)
+    
+    # For each portion of time intersect, we store data at that time for conc and response for the ID.. 
+    for(t in time_intersect){
+      
+      intersect_data <- data.frame(TIME=t, ID=i, conc=filter(conc_subset,NT==t)$DV,response=filter(response_subset,NT==t)$DV)
+      
+      study_response_conc <- rbind(study_response_conc,intersect_data)
+    }
+  }
+  study_response_conc <- study_response_conc[-1,]
+  return(study_response_conc)
+}
