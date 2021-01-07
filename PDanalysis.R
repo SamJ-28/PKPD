@@ -42,27 +42,29 @@ spaghetti_par <- function(Study){
 }
 
 # Facets are a nice way of splitting the very dense Study3 data.. 
+# Present these as the graphical interpretation of parasitaemia data
 
 spaghetti_par(study3Combi_par)+
   facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
-  xlab("Time")+
+  xlab("Time (hours)")+
   ylab("Log % change in parasitized red blood cells")+
   geom_vline(xintercept=48)+
-  theme(legend.position = "none")
+  theme(legend.position = "none",strip.text.y = element_text(angle=0))+
+  coord_cartesian(ylim=c(-5,5))
 
 spaghetti_par(study1CpdA_par)+
   facet_grid(DOSECpdA~., labeller = label_both)+
-  xlab("Time")+
+  xlab("Time (hours)")+
   ylab("Log % change in parasitized red blood cells")+
-  theme(legend.position = "none")+
+  theme(legend.position = "none",strip.text.y = element_text(angle=0))+
   coord_cartesian(ylim=c(-5,5))
 
-# Fit glm to log parasitaemia? 
-study1_glm <- ggplot()+
-  geom_point(data=study1CpdA_par,aes(y=DV,x=NT,color=as.factor(study1CpdA_par$DOSECpdA)))+
-  geom_smooth(data=study1CpdA_par,aes(y=DV,x=NT,color=as.factor(study1CpdA_par$DOSECpdA),group=as.factor(study1CpdA_par$DOSECpdA)),method="glm",se=FALSE)
-  
-
+spaghetti_par(study2CpdB_par)+
+  facet_grid(DOSECpdB~., labeller = label_both)+
+  xlab("Time (hours)")+
+  ylab("Log % change in parasitized red blood cells")+
+  theme(legend.position = "none",strip.text.y = element_text(angle=0))+
+  coord_cartesian(ylim=c(-5,5))
 
 ###################
 #====================
@@ -71,7 +73,7 @@ spaghetti_par(study3CpdA_par)+
   xlab("Time")+
   ylab("Log % change in parasitized red blood cells")+
   geom_vline(xintercept=48)+
-  theme(legend.position = "none")
+  theme(legend.position = "none",strip.text.y = element_text(angle=0))
 
 
 spaghetti_par(study3CpdB_par)+
