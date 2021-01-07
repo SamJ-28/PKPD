@@ -50,24 +50,29 @@ spaghetti_par(study3Combi_par)+
   ylab("Log % change in parasitized red blood cells")+
   geom_vline(xintercept=48)+
   theme(legend.position = "none",strip.text.y = element_text(angle=0))+
-  coord_cartesian(ylim=c(-5,5))
+  coord_cartesian(ylim=c(-5,5))+
+  ggtitle("Log % change in parasitized red blood cells: Study 3 (Combination therapy)")
 
 spaghetti_par(study1CpdA_par)+
   facet_grid(DOSECpdA~., labeller = label_both)+
   xlab("Time (hours)")+
   ylab("Log % change in parasitized red blood cells")+
   theme(legend.position = "none",strip.text.y = element_text(angle=0))+
-  coord_cartesian(ylim=c(-5,5))
+  coord_cartesian(ylim=c(-5,5))+
+  ggtitle("Log % change in parasitized red blood cells: Study 1 (Compound A)")
 
 spaghetti_par(study2CpdB_par)+
   facet_grid(DOSECpdB~., labeller = label_both)+
   xlab("Time (hours)")+
   ylab("Log % change in parasitized red blood cells")+
   theme(legend.position = "none",strip.text.y = element_text(angle=0))+
-  coord_cartesian(ylim=c(-5,5))
+  coord_cartesian(ylim=c(-5,5))+
+  ggtitle("Log % change in parasitized red blood cells: Study 2 (Compound B)")
 
 ###################
 #====================
+###################
+
 spaghetti_par(study3CpdA_par)+
   facet_grid(DOSECpdA~DOSECpdB, labeller = label_both)+
   xlab("Time")+
