@@ -97,12 +97,22 @@ S2Dose <- filter(S2B,TIME==24)
 # Plots of conc response
 ##################
 
-S3conc_response<-ggplot()+
-  geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))+
+S3Aconc_response<-ggplot()+
+  geom_point(data=S3CombiA1Dose,aes(y=response,x=log(conc)))+
   coord_cartesian(ylim=c(-1,1))
 
-conc_response<-ggplot()+
-  geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))
+S3Bconc_response<-ggplot()+
+  geom_point(data=S3CombiB1Dose,aes(y=response,x=conc))+
+  coord_cartesian(ylim=c(-1,1))
+
+S1conc_response<-ggplot()+
+  geom_point(data=S1A,aes(y=response,x=conc))+
+  coord_cartesian(ylim=c(-1,1))
+
+S2conc_response<-ggplot()+
+  geom_point(data=S2B,aes(y=response,x=conc))+
+  coord_cartesian(ylim=c(-1,1))
+
 
 conc_response<-ggplot()+
   geom_smooth(data=S1Dose,aes(y=response,x=conc),method="glm",se=FALSE)+
