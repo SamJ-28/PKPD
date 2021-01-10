@@ -18,11 +18,9 @@ study3 <- get_individual_study(PKPDdata,"Study3")
 study1_conc <- export_conc_mono_doses(study1,"CpdA")
 study2_conc <- export_conc_mono_doses(study2,"CpdB")
 
-<<<<<<< HEAD
 study3_conc <- get_conc3(study3)
 study3_conc_combi <- get_conc_combi(get_conc3(study3),"Combination")
-=======
->>>>>>> 1c64ab91ff0d4620c2dbe1c5a784ec63acca3138
+
 # Study 3 : export_conc_mono for the monotherapy runs
 Study3_MONO_CpdA_Conc <- export_conc_mono_doses(study3,"CpdA")
 Study3_MONO_CpdB_Conc <- export_conc_mono_doses(study3,"CpdB")

@@ -240,6 +240,7 @@ Compound_A_DoseResponse <- ggplot()+
   ggtitle("Dose-response of compound A at 24h after a single dose")+
   theme_bw()
 
+ggsave("CpdADR_log.tiff")
 
 Compound_B_DoseResponse <- ggplot()+
   geom_point(data=CpdBDoseResponse,aes(x=dose,y=response,color=study))+
@@ -247,6 +248,8 @@ Compound_B_DoseResponse <- ggplot()+
   xlab("Dose (mg/kg)")+
   ggtitle("Dose-response of compound B at 24h after a single dose")+
   theme_bw()
+
+ggsave("CpdBDR_log.tiff")
 
 # Change to PRR 24 assuming % irbc = 1 at time 0..
 S1A_PRR <- S1ADoseResponse
@@ -263,6 +266,27 @@ S3B_PRR$response <- 1/(exp(S3B_PRR$response))
 
 CpdA_PRR <- rbind(S1A_PRR,S3A_PRR)
 
+CpdB_PRR <- rbind(S2B_PRR,S3B_PRR)
+
+
+Compound_A_PRR <- ggplot()+
+  geom_point(data=CpdA_PRR,aes(x=dose,y=response,color=study))+
+  ylab("Parasite reduction ratio at 24h")+
+  xlab("Dose (mg/kg)")+
+  ggtitle("Dose-response of compound A at 24h after a single dose")+
+  coord_cartesian(ylim=c(0.01,4))+
+  theme_bw()
+ggsave("CpdAPRR.tiff")
+
+Compound_B_PRR <- ggplot()+
+  geom_point(data=CpdB_PRR,aes(x=dose,y=response,color=study))+
+  ylab("Parasite reduction ratio at 24h")+
+  xlab("Dose (mg/kg)")+
+  ggtitle("Dose-response of compound B at 24h after a single dose")+
+  coord_cartesian(ylim=c(0.01,4))+
+  theme_bw()
+
+ggsave("CpdBPRR.tiff")
 # Trick sicegar into plotting...
 colnames(S1ADoseResponse)<-c("time","intensity")
 colnames(S2BDoseResponse)<-c("time","intensity")
