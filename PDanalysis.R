@@ -2,7 +2,7 @@
 
 library(tidyverse)
 library(ggplot2)
-
+library(sicegar)
 
 # Source functions
 source("functions.R")
@@ -83,9 +83,12 @@ spaghetti_par(study2CpdB_par)+
 # Before the second dose.. 
 
 S3CombiA <- conc_response(study3,"CpdA",1)
+
 S3CombiA1Dose <- filter(S3CombiA,TIME==24)
 
+
 S3CombiB <- conc_response(study3,"CpdB",1)
+
 S3CombiB1Dose <- filter(S3CombiB,TIME==24)
 
 S1A <- conc_response(study1,"CpdA",0)
@@ -98,28 +101,171 @@ S2Dose <- filter(S2B,TIME==24)
 ##################
 
 S3Aconc_response<-ggplot()+
-  geom_point(data=S3CombiA1Dose,aes(y=response,x=log(conc)))+
-  coord_cartesian(ylim=c(-1,1))
+  geom_point(data=S3CombiA1Dose,aes(y=response,x=conc))+
+  coord_cartesian(ylim=c(0.1,5))+
+  geom_smooth(data=S3CombiA1Dose,aes(y=response,x=conc),method="glm")+
+  scale_x_log10()+
+  scale_y_log10()+
+  ggtitle("Concentration-Response: Study 3, Compound A")
+
+#ggsave("S3a.tiff")
 
 S3Bconc_response<-ggplot()+
   geom_point(data=S3CombiB1Dose,aes(y=response,x=conc))+
-  coord_cartesian(ylim=c(-1,1))
+  coord_cartesian(ylim=c(-2,2))+
+  geom_smooth(data=S3CombiB1Dose,aes(y=response,x=conc),method="glm")+
+  ggtitle("Concentration-Response: Study 3, Compound B")+
+  scale_x_log10()
+
+#ggsave("S3b.tiff")
 
 S1conc_response<-ggplot()+
   geom_point(data=S1A,aes(y=response,x=conc))+
-  coord_cartesian(ylim=c(-1,1))
+  geom_smooth(data=S1A,aes(y=response,x=conc),method="glm")+
+  coord_cartesian(ylim=c(-3,3))+
+  ggtitle("Concentration-Response: Study 1, Compound A")+
+  scale_x_log10()
+  
+
+#ggsave("S1a.tiff")
 
 S2conc_response<-ggplot()+
   geom_point(data=S2B,aes(y=response,x=conc))+
-  coord_cartesian(ylim=c(-1,1))
+  geom_smooth(data=S2B,aes(y=response,x=conc),method="glm")+
+  coord_cartesian(ylim=c(-4,4))+
+  ggtitle("Concentration-Response: Study 2, Compound B")+
+  scale_x_log10()
 
 
-conc_response<-ggplot()+
-  geom_smooth(data=S1Dose,aes(y=response,x=conc),method="glm",se=FALSE)+
-  coord_cartesian(ylim=c(-1,1))
+#ggsave("S2b.tiff")
 
 # Pull in dose to double check 
 S1AmonoDose <- get_dose_mono(study1,"CpdA")
 S3AmonoDose <- get_dose_combi(study3,"CpdA",1)
 
-# TODO: Response is time 24... but conc isn't. 
+##
+# Conc response sigmoidal using sicegar
+# Not sure if this is appropriate but seems to be a good example for the purpose of the interview. 
+# https://cran.r-project.org/web/packages/sicegar/vignettes/introduction.html
+# Takes first dose data (see above)
+
+sigmoid_fit <- function(conc_response_data,untransform){
+  
+  sigmoid_df <- conc_response_data %>%
+    select(conc,response)
+  
+  if(untransform==1){
+    sigmoid_df$response <- exp(sigmoid_df$response)
+    sigmoid_df$response <- 1/sigmoid_df$response
+  }
+  
+  # trick sicegar into thinking we're time data 
+  colnames(sigmoid_df) <- c("time","intensity")
+  
+  return(sigmoid_df)
+  
+  
+}
+
+S1ASig <- sigmoid_fit(S1Dose,1)
+
+fitObj <- fitAndCategorize(S1ASig,
+                           threshold_minimum_for_intensity_maximum = 0.3,
+                           threshold_intensity_range = 0.1,
+                           threshold_t0_max_int = 0.05)
+
+fig_1A <- figureModelCurves(dataInput = fitObj$normalizedInput,
+                           sigmoidalFitVector = fitObj$sigmoidalModel,
+                           showParameterRelatedLines = TRUE)
+
+
+S3ASig <- sigmoid_fit(S3CombiA1Dose,1)
+
+
+fitObj <- fitAndCategorize(S3ASig,
+                           threshold_minimum_for_intensity_maximum = 0.3,
+                           threshold_intensity_range = 0.1,
+                           threshold_t0_max_int = 0.05)
+
+fig_3A <- figureModelCurves(dataInput = fitObj$normalizedInput,
+                           sigmoidalFitVector = fitObj$sigmoidalModel,
+                           showParameterRelatedLines = TRUE)
+
+
+S2BSig <- sigmoid_fit(S2Dose,1)
+S3BSig <- sigmoid_fit(S3CombiB1Dose,1)
+####
+# Plot for PRRs : 
+
+Compound_A_PRR_conc <- ggplot()+
+  geom_point(data=S1ASig, aes(x=time,y=intensity),color="blue")+
+  geom_point(data=S3ASig, aes(x=time,y=intensity),color="orange")
+
+
+Compound_B_PRR_conc <- ggplot()+
+  geom_point(data=S2BSig, aes(x=time,y=intensity),color="blue")+
+  geom_point(data=S3BSig, aes(x=time,y=intensity),color="orange")
+
+## Untransformed i.e. ln % 
+
+Compound_A_conc_ln <- ggplot()+
+  geom_point(data=S1A, aes(x=conc,y=response),color="blue")+
+  geom_point(data=S3CombiA1Dose, aes(x=conc,y=response),color="orange")
+
+
+Compound_B_conc_ln <- ggplot()+
+  geom_point(data=S2B, aes(x=conc,y=response),color="blue")+
+  geom_point(data=S3CombiB1Dose, aes(x=conc,y=response),color="orange")
+
+# Response-dose... 
+S1ADoseResponse <- doseResponse24_mono(study1,"CpdA")%>%
+  mutate(study="Monotherapy")
+
+S2BDoseResponse <- doseResponse24_mono(study2,"CpdB")%>%
+  mutate(study="Monotherapy")
+
+S3ADoseResponse <- doseResponse24_s3(study3,"CpdA")%>%
+  mutate(study="Combination")
+
+S3BDoseResponse <- doseResponse24_s3(study3,"CpdB")%>%
+  mutate(study="Combination")
+
+CpdADoseResponse <-rbind(S1ADoseResponse,S3ADoseResponse)
+CpdBDoseResponse <-rbind(S2BDoseResponse,S3BDoseResponse)
+
+Compound_A_DoseResponse <- ggplot()+
+  geom_point(data=CpdADoseResponse,aes(x=dose,y=response,color=study))+
+  ylab("Log % of parasitized erythrocytes")+
+  xlab("Dose (mg/kg)")+
+  ggtitle("Dose-response of compound A at 24h after a single dose")+
+  theme_bw()
+
+
+Compound_B_DoseResponse <- ggplot()+
+  geom_point(data=CpdBDoseResponse,aes(x=dose,y=response,color=study))+
+  ylab("Log % of parasitized erythrocytes")+
+  xlab("Dose (mg/kg)")+
+  ggtitle("Dose-response of compound B at 24h after a single dose")+
+  theme_bw()
+
+# Change to PRR 24 assuming % irbc = 1 at time 0..
+S1A_PRR <- S1ADoseResponse
+S2B_PRR <- S2BDoseResponse
+
+S3A_PRR <- S3ADoseResponse
+S3B_PRR <- S3BDoseResponse
+
+S1A_PRR$response <- 1/(exp(S1A_PRR$response))
+S2B_PRR$response <- 1/(exp(S2B_PRR$response))
+
+S3A_PRR$response <- 1/(exp(S3A_PRR$response))
+S3B_PRR$response <- 1/(exp(S3B_PRR$response))
+
+CpdA_PRR <- rbind(S1A_PRR,S3A_PRR)
+
+# Trick sicegar into plotting...
+colnames(S1ADoseResponse)<-c("time","intensity")
+colnames(S2BDoseResponse)<-c("time","intensity")
+colnames(S3ADoseResponse)<-c("time","intensity")
+colnames(S3BDoseResponse)<-c("time","intensity")
+

@@ -102,7 +102,6 @@ get_par <- function(studyDat, which_treatment){
 # In an ideal world they would be treated as seperate studies for data entry.
 # There's some hard-coding in here for now due to time - want to get the mrgsolve model working. 
 
-
 get_dose_combi <- function(Study,which_compound,combination){
   
   print("Only use for Study 3")
@@ -136,14 +135,13 @@ get_dose_combi <- function(Study,which_compound,combination){
   return(StudyDose)
 }
 
-# which compound is derelict here 
 get_dose_mono <-function(Study,which_compound){
-
-    StudyDose <- Study %>%
-      filter(str_detect(NAME, "Dose") & str_detect(NAME,which_compound))%>%
-      select(ID,NT,AMT)
-    
-    return(StudyDose)
+  
+  StudyDose <- Study %>%
+    filter(str_detect(NAME, "Dose") & str_detect(NAME,which_compound))%>%
+    select(ID,NT,AMT)
+  
+  return(StudyDose)
 }
 
 # Pull and trim the data for use in mrgsolve*
@@ -332,8 +330,6 @@ get_mrgdata_3<-function(Study,which_run,which_compound){
   return(mrg_data)
 }
 
-
-
 # Optimize functions for mrgsolve: 
 
 # Ordinary least sqaures # Function from Kyle Baron / metrum: https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md 
@@ -447,7 +443,6 @@ mrg_model<-function(data, compartments, optimizer,output){
 }
 
 
-
 get_geo_mean <- function(conc_data){
   
   doses <- unique(conc_data$Dose)
@@ -502,8 +497,9 @@ add_dose_data <- function(pred, conc){
   return(pred_dose)
 }
 
-
-doseResponse24 <- function(data,which_compound){
+# data = output of get_individual_study
+# DO NOT USE FOR COMBINATION / study 3 
+doseResponse24_mono <- function(data,which_compound){
   
   data24 <- data %>%
     filter(TIME==24)
@@ -515,12 +511,7 @@ doseResponse24 <- function(data,which_compound){
   if(which_compound=="CpdB"){
     doses <- unique(data24$DOSECpdB)
   }
-  if(which_compound=="Combination"){
-    data24 <- data24%>%
-      mutate(combined_dose=DOSECpdA+DOSECpdB)
-    
-    doses <- unique(data24$combined_dose)
-  }
+  
   
   individual_data <- data.frame(dose=NA,response=NA)
   # Loop through each dose for the values of parasitaemia
@@ -537,9 +528,55 @@ doseResponse24 <- function(data,which_compound){
       dosesubset <- data24%>%
         filter(DOSECpdB==i)
     }
-    if(which_compound=="Combination"){
+   
+    individual_data_bind <- data.frame(dose=rep(i,times=length(dosesubset$DV)),response=dosesubset$DV)
+    dose_mean<- mean(dosesubset$DV)
+    
+    response<-c(response,dose_mean)
+    
+    
+    individual_data <- rbind(individual_data,individual_data_bind)
+  }
+  
+  
+  dose_response <- data.frame(Dose=doses,Response=response) %>%
+    arrange(Dose)
+  
+  # Return dose_response if you want the mean.. 
+  #return(dose_response)
+  individual_data<-individual_data[-1,]
+  return(individual_data)
+}  
+
+# This is not good code, but i'm limited on time so just pulling the combination therapy directly. 
+doseResponse24_s3 <- function(data,which_compound){
+  
+  data24 <- data %>%
+    filter(TIME==24,str_detect(TRTNAME, "CpdB") & str_detect(TRTNAME,"CpdA"))
+
+  if(which_compound=="CpdA"){
+    doses <- unique(data24$DOSECpdA)
+  }
+  
+  if(which_compound=="CpdB"){
+    doses <- unique(data24$DOSECpdB)
+  }
+  
+  
+  individual_data <- data.frame(dose=NA,response=NA)
+  # Loop through each dose for the values of parasitaemia
+  
+  response<-c()
+  for(i in doses){
+    
+    if(which_compound=="CpdA"){
       dosesubset <- data24%>%
-        filter(combined_dose==i)
+        filter(DOSECpdA==i)
+    }
+    
+    if(which_compound=="CpdB"){
+      dosesubset <- data24%>%
+        filter(DOSECpdB==i)
     }
     
     individual_data_bind <- data.frame(dose=rep(i,times=length(dosesubset$DV)),response=dosesubset$DV)
