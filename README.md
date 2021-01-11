@@ -14,7 +14,7 @@ Plotting.R is many of the simple plots that are shown early in the presentation
 
 ConcAnalysis.R is more detailed analysis of the concentration data
 
-PKAnalysis.R is compartmental models with mrgsolve
+PKAnalysis.R is compartmental models with mrgsolve. I would advise against sourcing this entire script as the mrgsolve models will take a long time to run
 
 PDAnalysis.R is a more detailed analysis of drug response data 
 
