@@ -298,22 +298,18 @@ combi_a <- unique(study3Combi_par$DOSECpdA)
 combi_b <- unique(study3Combi_par$DOSECpdB)
 
 subset_mono_1 <- filter(study1CpdA_par, DOSECpdA%in%combi_a)%>%
-  select(ID,NT,DV,DOSECpdA)%>%
-  mutate(study="monotherapy")%>%
-  rename(Dose=DOSECpdA)
+  select(ID,NT,DV,DOSECpdA,DOSECpdB)%>%
+  mutate(study="monotherapy")
 
 subset_mono_2 <- filter(study2CpdB_par, DOSECpdB%in%combi_b)%>%
-  select(ID,NT,DV,DOSECpdB)%>%
-  mutate(study="monotherapy")%>%
-  rename(Dose=DOSECpdB)
+  select(ID,NT,DV,DOSECpdA,DOSECpdB)%>%
+  mutate(study="monotherapy")
 
-subset_combi_A <- select(study3Combi_par, ID,NT,DV,DOSECpdA)%>%
-  mutate(study="combination")%>%
-  rename(Dose=DOSECpdA)
+subset_combi_A <- select(study3Combi_par, ID,NT,DV,DOSECpdA,DOSECpdB)%>%
+  mutate(study="combination")
 
-subset_combi_B <- select(study3Combi_par, ID,NT,DV,DOSECpdB)%>%
-  mutate(study="combination")%>%
-  rename(Dose=DOSECpdB)
+subset_combi_B <- select(study3Combi_par, ID,NT,DV,DOSECpdA,DOSECpdB)%>%
+  mutate(study="combination")
 
 all_A <- rbind(subset_mono_1,subset_combi_A)
 all_B <- rbind(subset_mono_2,subset_combi_B)
@@ -321,14 +317,24 @@ all_B <- rbind(subset_mono_2,subset_combi_B)
 CpdA_response <- ggplot(data=all_A,aes(x=NT,y=DV,group=ID,color=study))+
   geom_line()+
   coord_cartesian(ylim=c(-6,6))+
-  facet_grid(.~DOSECpdA)
+  facet_grid(DOSECpdA~DOSECpdB, labeller=label_both)+
+  xlab("Time (hours)")+
+  ylab("Log % of Parasitized Erythrocytes")+
+  ggtitle("Response-time curves: Compound A")+
+  theme_bw()
 
+ggsave("Response_CpdA.tiff")
 
-CpdB_response <- ggplot(data=all_B,aes(x=TIME,y=DV,group=ID,color=study))+
+CpdB_response <- ggplot(data=all_B,aes(x=NT,y=DV,group=ID,color=study))+
   geom_line()+
   coord_cartesian(ylim=c(-6,6))+
-  facet_grid(.~DOSECpdB)
+  facet_grid(DOSECpdA~DOSECpdB, labeller=label_both)+
+  xlab("Time (hours)")+
+  ylab("Log % of Parasitized Erythrocytes")+
+  ggtitle("Response-time curves: Compound B")+
+  theme_bw()
 
+ggsave("Response_CpdB.tiff")
 # Convert to parasite % for geo means assuming starting P of 1 
 PR_A_mono <- subset_mono_1
 PR_B_mono <- subset_mono_2

@@ -21,6 +21,7 @@ get_individual_study <- function(data,study){
 # Gets conc for the monotherapy studies (1, 2) and feeds subsequent function for Study 3
 # Takes the output of get_individual_study
 
+# Takes the output of get_individual_study
 get_conc3 <- function(studyDat){
   
   # StudyDat is output of get_individual_study
@@ -68,10 +69,10 @@ get_conc_combi <- function(dat,which_run){
   return(dat_test)  
 }
 
-# Gets parasitaemia data
+# Gets parasitaemia data, study_dat is the output of get_individual_study
+# which treatment = "CpdA" / "CpdB" / "Combination"
 get_par <- function(studyDat, which_treatment){
-  print("Takes Study1, Study2, etc..")
-  
+
   Study_par <- studyDat %>%
     filter(str_detect(NAME, "Parasitemia")) 
   
@@ -145,7 +146,7 @@ get_dose_mono <-function(Study,which_compound){
 }
 
 # Pull and trim the data for use in mrgsolve*
-# Should really just remove the which_run bit.. 
+# which_run = which_compound as above. It's probably not needed for the function
 
 export_conc_mono <- function(studyDat,which_run){
   
@@ -173,6 +174,8 @@ export_conc_mono <- function(studyDat,which_run){
 }
 
 # Export concs from Study 3, combination runs. 
+# Study and study_dat are both the output of get_individual_study .. not sure why I didn't
+# sync up the names 
 export_conc_combi <- function(Study,which_compound){
   
   
@@ -198,6 +201,7 @@ export_conc_combi_doses <- function(Study,which_compound){
   return(conc_data)
   
 }
+
 export_conc_mono_doses <- function(studyDat,which_run){
   
   # which_run is only needed for study 3
@@ -270,7 +274,6 @@ get_mrgdata_12<-function(Study,which_compound){
   
 }
 
-
 get_mrgdata_3<-function(Study,which_run,which_compound){
   
   
@@ -330,7 +333,7 @@ get_mrgdata_3<-function(Study,which_run,which_compound){
   return(mrg_data)
 }
 
-# Optimize functions for mrgsolve: 
+# Optimizer functions for mrgsolve: 
 
 # Ordinary least sqaures # Function from Kyle Baron / metrum: https://github.com/metrumresearchgroup/ub-cdse-2019/blob/master/content/tools_optimization_indomethacin.md 
 objOLS <- function(p, theta, data, dv ="conc", pred = FALSE) {
@@ -442,7 +445,7 @@ mrg_model<-function(data, compartments, optimizer,output){
   }
 }
 
-
+# Function to convert concentration data to geometric means
 get_geo_mean <- function(conc_data){
   
   doses <- unique(conc_data$Dose)
@@ -475,7 +478,6 @@ get_geo_mean <- function(conc_data){
 }
 
 # Add dose data to mrgsolve predictions using output of export_conc_mono_dose or export_conc_combi_dose 
-
 add_dose_data <- function(pred, conc){
   
   conc_subset <- conc %>%
@@ -497,6 +499,8 @@ add_dose_data <- function(pred, conc){
   return(pred_dose)
 }
 
+# Dose-response data - Ideally these would be a single function, I was limited on time and
+# prioritized the output. 
 # data = output of get_individual_study
 # DO NOT USE FOR COMBINATION / study 3 
 doseResponse24_mono <- function(data,which_compound){
