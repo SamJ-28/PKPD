@@ -240,7 +240,7 @@ Compound_A_DoseResponse <- ggplot()+
   ggtitle("Dose-response of compound A at 24h after a single dose")+
   theme_bw()
 
-ggsave("CpdADR_log.tiff")
+#ggsave("CpdADR_log.tiff")
 
 Compound_B_DoseResponse <- ggplot()+
   geom_point(data=CpdBDoseResponse,aes(x=dose,y=response,color=study))+
@@ -249,7 +249,7 @@ Compound_B_DoseResponse <- ggplot()+
   ggtitle("Dose-response of compound B at 24h after a single dose")+
   theme_bw()
 
-ggsave("CpdBDR_log.tiff")
+#ggsave("CpdBDR_log.tiff")
 
 # Change to PRR 24 assuming % irbc = 1 at time 0..
 S1A_PRR <- S1ADoseResponse
@@ -276,7 +276,7 @@ Compound_A_PRR <- ggplot()+
   ggtitle("Dose-response of compound A at 24h after a single dose")+
   coord_cartesian(ylim=c(0.01,4))+
   theme_bw()
-ggsave("CpdAPRR.tiff")
+#ggsave("CpdAPRR.tiff")
 
 Compound_B_PRR <- ggplot()+
   geom_point(data=CpdB_PRR,aes(x=dose,y=response,color=study))+
@@ -286,10 +286,68 @@ Compound_B_PRR <- ggplot()+
   coord_cartesian(ylim=c(0.01,4))+
   theme_bw()
 
-ggsave("CpdBPRR.tiff")
-# Trick sicegar into plotting...
-colnames(S1ADoseResponse)<-c("time","intensity")
-colnames(S2BDoseResponse)<-c("time","intensity")
-colnames(S3ADoseResponse)<-c("time","intensity")
-colnames(S3BDoseResponse)<-c("time","intensity")
+#ggsave("CpdBPRR.tiff")
 
+
+
+#####
+# Extra anlaysis to compare response on the same plots 
+
+# Get unique doses of A and B for combi 
+combi_a <- unique(study3Combi_par$DOSECpdA)
+combi_b <- unique(study3Combi_par$DOSECpdB)
+
+subset_mono_1 <- filter(study1CpdA_par, DOSECpdA%in%combi_a)%>%
+  select(ID,NT,DV,DOSECpdA)%>%
+  mutate(study="monotherapy")%>%
+  rename(Dose=DOSECpdA)
+
+subset_mono_2 <- filter(study2CpdB_par, DOSECpdB%in%combi_b)%>%
+  select(ID,NT,DV,DOSECpdB)%>%
+  mutate(study="monotherapy")%>%
+  rename(Dose=DOSECpdB)
+
+subset_combi_A <- select(study3Combi_par, ID,NT,DV,DOSECpdA)%>%
+  mutate(study="combination")%>%
+  rename(Dose=DOSECpdA)
+
+subset_combi_B <- select(study3Combi_par, ID,NT,DV,DOSECpdB)%>%
+  mutate(study="combination")%>%
+  rename(Dose=DOSECpdB)
+
+all_A <- rbind(subset_mono_1,subset_combi_A)
+all_B <- rbind(subset_mono_2,subset_combi_B)
+
+CpdA_response <- ggplot(data=all_A,aes(x=NT,y=DV,group=ID,color=study))+
+  geom_line()+
+  coord_cartesian(ylim=c(-6,6))+
+  facet_grid(.~DOSECpdA)
+
+
+CpdB_response <- ggplot(data=all_B,aes(x=TIME,y=DV,group=ID,color=study))+
+  geom_line()+
+  coord_cartesian(ylim=c(-6,6))+
+  facet_grid(.~DOSECpdB)
+
+# Convert to parasite % for geo means assuming starting P of 1 
+PR_A_mono <- subset_mono_1
+PR_B_mono <- subset_mono_2
+
+PR_A_combi <- subset_combi_A
+PR_B_combi <- subset_combi_B
+
+PR_A_mono$DV <- (exp(PR_A_mono$DV))
+PR_B_mono$DV <- (exp(PR_B_mono$DV))
+
+PR_A_combi$DV <- (exp(PR_A_combi$DV))
+PR_B_combi$DV <- (exp(PR_B_combi$DV))
+
+geo_A_mono <- get_geo_mean(PR_A_mono)%>%
+  mutate(study="monotherapy")
+geo_B_mono <- get_geo_mean(PR_B_mono)%>%
+  mutate(study="monotherapy")
+
+geo_A_combi <- get_geo_mean(PR_A_combi)%>%
+  mutate(study="combination")
+geo_B_combi <- get_geo_mean(PR_B_combi)%>%
+  mutate(study="combination")
